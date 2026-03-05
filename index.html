@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>You're Invited — A Magical Celebration</title>
+  <meta name="description" content="A magical Harry Potter themed birthday invitation" />
+
+  <!-- Google Fonts — wizard-style typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Cinzel:wght@400;600;700&family=MedievalSharp&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <!-- ══════════════════════════════════════════
+       STEP 1 — LETTER INTRO ANIMATION
+       ══════════════════════════════════════════ -->
+  <section id="intro-screen" class="intro-screen" aria-label="Magical letter intro">
+
+    <!-- Floating envelopes container -->
+    <div id="envelopes-container" class="envelopes-container" aria-live="polite"></div>
+
+    <!-- "Catch a letter" prompt -->
+    <p id="catch-text" class="catch-text">Catch a letter</p>
+
+    <!-- "Tap to open" prompt (hidden initially) -->
+    <p id="tap-text" class="tap-text hidden">Tap to open</p>
+
+    <!-- Letter content revealed on open -->
+    <div id="letter-content" class="letter-content hidden" aria-label="Invitation letter">
+      <div class="letter-inner">
+        <p class="letter-school">HOGWARTS SCHOOL<br>of Witchcraft and Wizardry</p>
+        <hr class="letter-divider" />
+        <p class="letter-body">
+          Dear Wizard,<br><br>
+          We are pleased to inform you that you have been invited
+          to a <strong>most magical celebration</strong>.<br><br>
+          Please find enclosed details of the event.
+          We await your owl by no later than the date indicated.<br><br>
+          <em>Sincerely,<br>The Ministry of Magic</em>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════
+       STEP 2 — MAIN INVITATION PAGE
+       ══════════════════════════════════════════ -->
+  <main id="main-page" class="main-page hidden" aria-label="Main invitation">
+
+    <!-- Canvas for magical particles -->
+    <canvas id="particles-canvas" class="particles-canvas" aria-hidden="true"></canvas>
+
+    <!-- Footsteps layer -->
+    <div id="footsteps-layer" class="footsteps-layer" aria-hidden="true"></div>
+
+    <!-- Floating music control -->
+    <button id="music-toggle" class="music-toggle" aria-label="Toggle background music" title="Toggle music">
+      <span class="music-icon">♪</span>
+    </button>
+
+    <!-- ─── Header Image ─── -->
+    <header class="hero-section">
+      <div class="hero-crest">
+        <!-- SVG Hogwarts-inspired crest rendered with CSS -->
+        <div class="crest-shield">
+          <span class="crest-letter">H</span>
+        </div>
+        <h1 class="hero-title">You're Invited</h1>
+        <p class="hero-subtitle">to a Magical Celebration</p>
+      </div>
+    </header>
+
+    <!-- ─── Countdown Timer ─── -->
+    <section class="countdown-section" aria-label="Event countdown">
+      <h2 class="section-heading">The Magic Begins In</h2>
+      <div class="countdown-timer" id="countdown-timer">
+        <div class="countdown-unit">
+          <span class="countdown-number" id="countdown-days">00</span>
+          <span class="countdown-label">Days</span>
+        </div>
+        <div class="countdown-separator">⚡</div>
+        <div class="countdown-unit">
+          <span class="countdown-number" id="countdown-hours">00</span>
+          <span class="countdown-label">Hours</span>
+        </div>
+        <div class="countdown-separator">⚡</div>
+        <div class="countdown-unit">
+          <span class="countdown-number" id="countdown-minutes">00</span>
+          <span class="countdown-label">Min</span>
+        </div>
+        <div class="countdown-separator">⚡</div>
+        <div class="countdown-unit">
+          <span class="countdown-number" id="countdown-seconds">00</span>
+          <span class="countdown-label">Sec</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── Photo Carousel ─── -->
+    <section class="carousel-section" aria-label="Photo gallery">
+      <h2 class="section-heading">Magical Moments</h2>
+      <div class="carousel-wrapper">
+        <div class="carousel-track" id="carousel-track">
+          <!-- Placeholder slides with gradient backgrounds -->
+          <div class="carousel-slide" style="--slide-hue: 30;">
+            <div class="slide-placeholder">
+              <span>⚡</span>
+              <p>Photo 1</p>
+            </div>
+          </div>
+          <div class="carousel-slide" style="--slide-hue: 270;">
+            <div class="slide-placeholder">
+              <span>🧙</span>
+              <p>Photo 2</p>
+            </div>
+          </div>
+          <div class="carousel-slide" style="--slide-hue: 200;">
+            <div class="slide-placeholder">
+              <span>🦉</span>
+              <p>Photo 3</p>
+            </div>
+          </div>
+          <div class="carousel-slide" style="--slide-hue: 340;">
+            <div class="slide-placeholder">
+              <span>🏰</span>
+              <p>Photo 4</p>
+            </div>
+          </div>
+          <div class="carousel-slide" style="--slide-hue: 120;">
+            <div class="slide-placeholder">
+              <span>✨</span>
+              <p>Photo 5</p>
+            </div>
+          </div>
+        </div>
+        <!-- Carousel Dots -->
+        <div class="carousel-dots" id="carousel-dots"></div>
+      </div>
+    </section>
+
+    <!-- ─── Action Buttons ─── -->
+    <section class="buttons-section" aria-label="Event details">
+      <h2 class="section-heading">Event Details</h2>
+      <div class="buttons-stack">
+        <button class="magic-btn" data-modal="modal-date">
+          <span class="btn-icon">📅</span> Date
+        </button>
+        <button class="magic-btn" data-modal="modal-location">
+          <span class="btn-icon">📍</span> Location
+        </button>
+        <button class="magic-btn" data-modal="modal-dresscode">
+          <span class="btn-icon">🧙</span> Dress Code
+        </button>
+        <button class="magic-btn" data-modal="modal-gifts">
+          <span class="btn-icon">🎁</span> Gifts / Transfer Alias
+        </button>
+        <button class="magic-btn" data-modal="modal-photos">
+          <span class="btn-icon">📸</span> Upload Photos
+        </button>
+        <button class="magic-btn" data-modal="modal-trivia">
+          <span class="btn-icon">⚡</span> Trivia Game
+        </button>
+        <button class="magic-btn magic-btn--primary" data-modal="modal-rsvp">
+          <span class="btn-icon">✉️</span> Confirm Attendance
+        </button>
+      </div>
+    </section>
+
+    <!-- ─── Footer ─── -->
+    <footer class="site-footer">
+      <p>"I solemnly swear that I am up to no good."</p>
+      <p class="footer-sub">Mischief Managed ⚡</p>
+    </footer>
+  </main>
+
+  <!-- ══════════════════════════════════════════
+       MODALS
+       ══════════════════════════════════════════ -->
+
+  <!-- Date Modal -->
+  <div class="modal-overlay" id="modal-date" role="dialog" aria-modal="true" aria-label="Event date">
+    <div class="modal-parchment">
+      <button class="modal-close" aria-label="Close">&times;</button>
+      <h3 class="modal-title">📅 Date &amp; Time</h3>
+      <div class="modal-body">
+        <p><strong>Saturday, April 18, 2026</strong></p>
+        <p>Starting at <strong>8:00 PM</strong></p>
+        <p class="modal-note">Doors open at 7:30 PM — Don't be late or Filch will find you!</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Location Modal -->
+  <div class="modal-overlay" id="modal-location" role="dialog" aria-modal="true" aria-label="Event location">
+    <div class="modal-parchment">
+      <button class="modal-close" aria-label="Close">&times;</button>
+      <h3 class="modal-title">📍 Location</h3>
+      <div class="modal-body">
+        <p><strong>The Great Hall</strong></p>
+        <p>123 Diagon Alley, London</p>
+        <p class="modal-note">Platform 9¾ entrance — muggles look for the brick wall.</p>
+        <a href="https://maps.google.com" target="_blank" rel="noopener" class="modal-link">Open in Maps 🗺️</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dress Code Modal -->
+  <div class="modal-overlay" id="modal-dresscode" role="dialog" aria-modal="true" aria-label="Dress code">
+    <div class="modal-parchment">
+      <button class="modal-close" aria-label="Close">&times;</button>
+      <h3 class="modal-title">🧙 Dress Code</h3>
+      <div class="modal-body">
+        <p><strong>Wizarding Robes Encouraged!</strong></p>
+        <p>Come dressed as your favourite witch or wizard.</p>
+        <p>House colours, cloaks, wands — all welcome.</p>
+        <p class="modal-note">Muggle formal attire is also acceptable.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Gifts Modal -->
+  <div class="modal-overlay" id="modal-gifts" role="dialog" aria-modal="true" aria-label="Gifts information">
+    <div class="modal-parchment">
+      <button class="modal-close" aria-label="Close">&times;</button>
+      <h3 class="modal-title">🎁 Gifts / Transfer</h3>
+      <div class="modal-body">
+        <p>Your presence is the best gift!</p>
+        <p>If you wish to contribute:</p>
+        <p class="gift-alias"><strong>Transfer Alias:</strong> wizard@gringotts</p>
+        <p class="modal-note">Galleons, Sickles, and Knuts also accepted 🪙</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Upload Photos Modal -->
+  <div class="modal-overlay" id="modal-photos" role="dialog" aria-modal="true" aria-label="Upload photos">
+    <div class="modal-parchment">
+      <button class="modal-close" aria-label="Close">&times;</button>
+      <h3 class="modal-title">📸 Upload Photos</h3>
+      <div class="modal-body">
+        <p>Share your magical memories!</p>
+        <p>Upload photos from the celebration:</p>
+        <a href="https://drive.google.com" target="_blank" rel="noopener" class="modal-link">Open Google Drive 📁</a>
+        <p class="modal-note">Photos will appear in the shared album.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Trivia Modal -->
+  <div class="modal-overlay" id="modal-trivia" role="dialog" aria-modal="true" aria-label="Trivia game">
+    <div class="modal-parchment modal-parchment--wide">
+      <button class="modal-close" aria-label="Close">&times;</button>
+      <h3 class="modal-title">⚡ Trivia Game</h3>
+      <div class="modal-body">
+        <div id="trivia-container">
+          <p id="trivia-question" class="trivia-question"></p>
+          <div id="trivia-options" class="trivia-options"></div>
+          <p id="trivia-feedback" class="trivia-feedback"></p>
+          <button id="trivia-next" class="magic-btn magic-btn--small hidden">Next Question ➡️</button>
+          <p id="trivia-score" class="trivia-score"></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RSVP Modal (Confirm Attendance) -->
+  <div class="modal-overlay" id="modal-rsvp" role="dialog" aria-modal="true" aria-label="Confirm attendance">
+    <div class="modal-parchment modal-parchment--wide">
+      <button class="modal-close" aria-label="Close">&times;</button>
+      <h3 class="modal-title">✉️ Confirm Attendance</h3>
+      <div class="modal-body">
+        <form id="rsvp-form" class="rsvp-form" novalidate>
+
+          <!-- Number of people -->
+          <label class="form-label" for="rsvp-people">Number of People</label>
+          <select id="rsvp-people" name="people" class="form-select" required>
+            <option value="">Select…</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+            <option value="7">7</option>
+            <option value="8">8</option>
+          </select>
+
+          <!-- First Name -->
+          <label class="form-label" for="rsvp-firstname">First Name <span class="required">*</span></label>
+          <input type="text" id="rsvp-firstname" name="firstName" class="form-input" required placeholder="Harry" />
+
+          <!-- Last Name -->
+          <label class="form-label" for="rsvp-lastname">Last Name <span class="required">*</span></label>
+          <input type="text" id="rsvp-lastname" name="lastName" class="form-input" required placeholder="Potter" />
+
+          <!-- Attendance -->
+          <label class="form-label" for="rsvp-attendance">Will you attend? <span class="required">*</span></label>
+          <select id="rsvp-attendance" name="attendance" class="form-select" required>
+            <option value="">Select…</option>
+            <option value="yes">Yes — I'll be there!</option>
+            <option value="no">No — Sadly can't make it</option>
+          </select>
+
+          <!-- Dietary requirements -->
+          <label class="form-label" for="rsvp-diet">Dietary Requirement</label>
+          <select id="rsvp-diet" name="diet" class="form-select">
+            <option value="none">None</option>
+            <option value="vegan">Vegan</option>
+            <option value="vegetarian">Vegetarian</option>
+            <option value="celiac">Celiac</option>
+            <option value="diabetic">Diabetic</option>
+            <option value="hypertensive">Hypertensive</option>
+            <option value="lactose-intolerant">Lactose Intolerant</option>
+          </select>
+
+          <!-- Song -->
+          <label class="form-label" for="rsvp-song">Song that must play at the party 🎵</label>
+          <input type="text" id="rsvp-song" name="song" class="form-input" placeholder="Hedwig's Theme" />
+
+          <!-- Message -->
+          <label class="form-label" for="rsvp-message">Message for the birthday girl 💌</label>
+          <textarea id="rsvp-message" name="message" class="form-textarea" rows="3" placeholder="Write your magical message…"></textarea>
+
+          <!-- Submit -->
+          <button type="submit" class="magic-btn magic-btn--primary magic-btn--full">
+            Send Owl 🦉
+          </button>
+
+          <!-- Success message -->
+          <p id="rsvp-success" class="rsvp-success hidden">
+            ✨ Your owl has been sent! See you at the celebration! ✨
+          </p>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Background music (silent src — replace with actual audio file) -->
+  <audio id="bg-music" loop preload="none">
+    <!-- Replace src with your own audio file URL -->
+    <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg" />
+  </audio>
+
+  <script src="script.js"></script>
+</body>
+</html>
