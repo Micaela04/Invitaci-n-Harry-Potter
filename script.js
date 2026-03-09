@@ -10,10 +10,10 @@
    ───────────────────────────────────────────── */
 const CONFIG = {
   /* Event date for the countdown (YYYY-MM-DDTHH:MM:SS) */
-  eventDate: '2026-04-18T20:00:00',
+  eventDate: '2026-06-04T21:00:00',
 
   /* Number of envelopes to spawn */
-  envelopeCount: 7,
+  envelopeCount: 10,
 
   /* Carousel auto-slide interval (ms) */
   carouselInterval: 4000,
@@ -306,7 +306,7 @@ const FootstepsModule = (() => {
   if (!layer) return { start() {} };
 
   /* Footprint characters — alternating left/right */
-  const prints = ['👣'];
+  const prints = ['huellas.gif'];
   let stepIndex = 0;
 
   /* Walking path: coordinates along border of the viewport */
@@ -336,14 +336,20 @@ const FootstepsModule = (() => {
     const pos = getNextPosition();
     const step = document.createElement('div');
     step.classList.add('footstep');
-    step.textContent = prints[0];
+    
+    const img = document.createElement('img');
+    img.src = prints[0]; // "huellas.gif"
+    img.classList.add('footstep-img');
+
+    step.appendChild(img);
+
     step.style.left = `${pos.x}px`;
     step.style.top = `${pos.y}px`;
     step.style.transform = `rotate(${Math.random() * 360}deg)`;
     layer.appendChild(step);
 
-    // Clean up after animation ends
-    setTimeout(() => step.remove(), 3200);
+    // Clean up after animation ends (match CSS animation duration)
+    setTimeout(() => step.remove(), 4200);
   }
 
   function start() {
@@ -687,22 +693,26 @@ const RSVPModule = (() => {
         timestamp: new Date().toISOString(),
       };
 
-      console.log('📬 RSVP Data:', data);
-
       /*
-       * ─── BACKEND INTEGRATION PLACEHOLDER ───
-       * 
-       * To connect to Google Sheets, replace the console.log above with:
-       *
-       * fetch('YOUR_GOOGLE_APPS_SCRIPT_URL', {
-       *   method: 'POST',
-       *   mode: 'no-cors',
-       *   headers: { 'Content-Type': 'application/json' },
-       *   body: JSON.stringify(data),
-       * });
-       *
-       * Or use any REST API endpoint to store the data.
+       * Google Apps Script web app URL.
+       * Deploy the Apps Script from your Google Sheet and paste the URL here.
        */
+      const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzcNy7RnPQNGcbgK6NDMvZ7tLS4RYcZODowOvMOaAcLgsb2Q-1Vlrp1aGmJcxldgTfU/exec';
+
+      fetch(APPS_SCRIPT_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          firstName: data.firstName,
+          lastName: data.lastName,
+          people: data.people,
+          attendance: data.attendance,
+          diet: data.diet,
+          song: data.song,
+          message: data.message,
+        }),
+      });
 
       // Show success message
       form.style.display = 'none';

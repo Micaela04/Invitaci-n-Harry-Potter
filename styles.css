@@ -376,27 +376,52 @@ body::before {
 
 /* ─── Footsteps Layer ─── */
 .footsteps-layer {
-  position: fixed;
-  inset: 0;
-  z-index: 1;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
   pointer-events: none;
-  overflow: hidden;
 }
 
 .footstep {
   position: absolute;
-  font-size: 14px;
   opacity: 0;
   animation: footstepAppear 3s ease forwards;
   pointer-events: none;
-  filter: drop-shadow(0 0 3px rgba(212, 168, 67, 0.3));
+  width: 200px;
+  height: 200px;
+  filter: drop-shadow(0 0 4px rgba(212, 168, 67, 0.4));
+  z-index: 0;
+}
+
+.footstep-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
 }
 
 @keyframes footstepAppear {
   0% { opacity: 0; }
-  15% { opacity: 0.5; }
-  70% { opacity: 0.4; }
+  10% { opacity: 0.6; }
+  60% { opacity: 0.5; }
   100% { opacity: 0; }
+}
+
+@media (min-width: 600px) {
+  .footstep {
+    width: 250px;
+    height: 250px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .footstep {
+    width: 300px;
+    height: 300px;
+  }
 }
 
 /* ─── Music Toggle ─── */

@@ -24,10 +24,10 @@
     <div id="envelopes-container" class="envelopes-container" aria-live="polite"></div>
 
     <!-- "Catch a letter" prompt -->
-    <p id="catch-text" class="catch-text">Catch a letter</p>
+    <p id="catch-text" class="catch-text">Atrapá una carta</p>
 
     <!-- "Tap to open" prompt (hidden initially) -->
-    <p id="tap-text" class="tap-text hidden">Tap to open</p>
+    <p id="tap-text" class="tap-text hidden">Toca para abrir</p>
 
     <!-- Letter content revealed on open -->
     <div id="letter-content" class="letter-content hidden" aria-label="Invitation letter">
@@ -69,23 +69,23 @@
         <div class="crest-shield">
           <span class="crest-letter">H</span>
         </div>
-        <h1 class="hero-title">You're Invited</h1>
-        <p class="hero-subtitle">to a Magical Celebration</p>
+        <h1 class="hero-title">Estás invitado</h1>
+        <p class="hero-subtitle">a una celebración mágica</p>
       </div>
     </header>
 
     <!-- ─── Countdown Timer ─── -->
     <section class="countdown-section" aria-label="Event countdown">
-      <h2 class="section-heading">The Magic Begins In</h2>
+      <h2 class="section-heading">La Magia Comienza En</h2>
       <div class="countdown-timer" id="countdown-timer">
         <div class="countdown-unit">
           <span class="countdown-number" id="countdown-days">00</span>
-          <span class="countdown-label">Days</span>
+          <span class="countdown-label">Días</span>
         </div>
         <div class="countdown-separator">⚡</div>
         <div class="countdown-unit">
           <span class="countdown-number" id="countdown-hours">00</span>
-          <span class="countdown-label">Hours</span>
+          <span class="countdown-label">Horas</span>
         </div>
         <div class="countdown-separator">⚡</div>
         <div class="countdown-unit">
@@ -95,14 +95,14 @@
         <div class="countdown-separator">⚡</div>
         <div class="countdown-unit">
           <span class="countdown-number" id="countdown-seconds">00</span>
-          <span class="countdown-label">Sec</span>
+          <span class="countdown-label">Seg</span>
         </div>
       </div>
     </section>
 
     <!-- ─── Photo Carousel ─── -->
     <section class="carousel-section" aria-label="Photo gallery">
-      <h2 class="section-heading">Magical Moments</h2>
+      <h2 class="section-heading">Momentos Mágicos</h2>
       <div class="carousel-wrapper">
         <div class="carousel-track" id="carousel-track">
           <!-- Placeholder slides with gradient backgrounds -->
@@ -164,9 +164,7 @@
         <button class="magic-btn" data-modal="modal-trivia">
           <span class="btn-icon">⚡</span> Trivia Game
         </button>
-        <button class="magic-btn magic-btn--primary" data-modal="modal-rsvp">
-          <span class="btn-icon">✉️</span> Confirm Attendance
-        </button>
+        <button class="magic-btn magic-btn--primary" data-modal="modal-rsvp">Confirmar asistencia</button>
       </div>
     </section>
 
@@ -271,14 +269,13 @@
   <div class="modal-overlay" id="modal-rsvp" role="dialog" aria-modal="true" aria-label="Confirm attendance">
     <div class="modal-parchment modal-parchment--wide">
       <button class="modal-close" aria-label="Close">&times;</button>
-      <h3 class="modal-title">✉️ Confirm Attendance</h3>
+      <h3 class="modal-title">Confirmar asistencia</h3>
       <div class="modal-body">
         <form id="rsvp-form" class="rsvp-form" novalidate>
 
           <!-- Number of people -->
-          <label class="form-label" for="rsvp-people">Number of People</label>
+          <label class="form-label" for="rsvp-people">Número de personas a confirmar</label>
           <select id="rsvp-people" name="people" class="form-select" required>
-            <option value="">Select…</option>
             <option value="1">1</option>
             <option value="2">2</option>
             <option value="3">3</option>
@@ -290,49 +287,49 @@
           </select>
 
           <!-- First Name -->
-          <label class="form-label" for="rsvp-firstname">First Name <span class="required">*</span></label>
+          <label class="form-label" for="rsvp-firstname">Nombre <span class="required">*</span></label>
           <input type="text" id="rsvp-firstname" name="firstName" class="form-input" required placeholder="Harry" />
 
           <!-- Last Name -->
-          <label class="form-label" for="rsvp-lastname">Last Name <span class="required">*</span></label>
+          <label class="form-label" for="rsvp-lastname">Apellido <span class="required">*</span></label>
           <input type="text" id="rsvp-lastname" name="lastName" class="form-input" required placeholder="Potter" />
 
           <!-- Attendance -->
-          <label class="form-label" for="rsvp-attendance">Will you attend? <span class="required">*</span></label>
+          <label class="form-label" for="rsvp-attendance">¿Confirmas tu asistencia? <span class="required">*</span></label>
           <select id="rsvp-attendance" name="attendance" class="form-select" required>
-            <option value="">Select…</option>
-            <option value="yes">Yes — I'll be there!</option>
-            <option value="no">No — Sadly can't make it</option>
+            <option value="">Selecciona</option>
+            <option value="Si">Sii, ahí estaré</option>
+            <option value="No">No, no podré asistir</option>
           </select>
 
           <!-- Dietary requirements -->
-          <label class="form-label" for="rsvp-diet">Dietary Requirement</label>
+          <label class="form-label" for="rsvp-diet">Requerimientos en la alimentación</label>
           <select id="rsvp-diet" name="diet" class="form-select">
-            <option value="none">None</option>
-            <option value="vegan">Vegan</option>
-            <option value="vegetarian">Vegetarian</option>
-            <option value="celiac">Celiac</option>
-            <option value="diabetic">Diabetic</option>
-            <option value="hypertensive">Hypertensive</option>
-            <option value="lactose-intolerant">Lactose Intolerant</option>
+            <option value="Ninguno">Ninguno</option>
+            <option value="Vegano">Vegano</option>
+            <option value="Vegetariano">Vegetariano</option>
+            <option value="Celíaco">Celíaco</option>
+            <option value="Diabético">Diabético</option>
+            <option value="Hipertenso">Hipertenso</option>
+            <option value="Intolerante a la lactosa">Intolerante a la lactosa</option>
           </select>
 
           <!-- Song -->
-          <label class="form-label" for="rsvp-song">Song that must play at the party 🎵</label>
+          <label class="form-label" for="rsvp-song">¿Que canción no puede faltar?</label>
           <input type="text" id="rsvp-song" name="song" class="form-input" placeholder="Hedwig's Theme" />
 
           <!-- Message -->
-          <label class="form-label" for="rsvp-message">Message for the birthday girl 💌</label>
-          <textarea id="rsvp-message" name="message" class="form-textarea" rows="3" placeholder="Write your magical message…"></textarea>
+          <label class="form-label" for="rsvp-message">Mensaje para la quinceañera</label>
+          <textarea id="rsvp-message" name="message" class="form-textarea" rows="3" placeholder="Escribí tu mensaje mágico…"></textarea>
 
           <!-- Submit -->
           <button type="submit" class="magic-btn magic-btn--primary magic-btn--full">
-            Send Owl 🦉
+            Enviar Buho 🦉
           </button>
 
           <!-- Success message -->
           <p id="rsvp-success" class="rsvp-success hidden">
-            ✨ Your owl has been sent! See you at the celebration! ✨
+            ¡Tu buho ha sido enviado! ¡Nos vemos en la celebración!
           </p>
         </form>
       </div>
@@ -342,7 +339,7 @@
   <!-- Background music (silent src — replace with actual audio file) -->
   <audio id="bg-music" loop preload="none">
     <!-- Replace src with your own audio file URL -->
-    <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg" />
+    <source src="harry potter musica.mp3" type="audio/mp3" />
   </audio>
 
   <script src="script.js"></script>
