@@ -46,7 +46,6 @@ const IntroModule = (() => {
   const container = $('#envelopes-container');
   const catchText = $('#catch-text');
   const tapText = $('#tap-text');
-  const letterContent = $('#letter-content');
   const mainPage = $('#main-page');
 
   /** Create a single envelope DOM element */
@@ -125,7 +124,7 @@ const IntroModule = (() => {
     tapText.classList.remove('hidden');
   }
 
-  /** Open the selected envelope → reveal letter → transition to main */
+  /** Open the selected envelope → transition directly to main page */
   async function openEnvelope(env) {
     tapText.classList.add('hidden');
     env.classList.add('opened');
@@ -137,18 +136,7 @@ const IntroModule = (() => {
 
     await wait(500);
 
-    // Show letter content
-    letterContent.classList.remove('hidden');
-
-    // After reading time → transition
-    await wait(3500);
-
-    letterContent.style.transition = 'opacity 1.2s ease';
-    letterContent.style.opacity = '0';
-
-    await wait(1200);
-
-    // Hide intro, show main
+    // Skip intermediate letter — go straight to main page
     introScreen.classList.add('fade-out');
     mainPage.classList.remove('hidden');
 
@@ -477,7 +465,7 @@ const ModalsModule = (() => {
   }
 
   function init() {
-    // Open buttons
+    // Open buttons (both old magic-btn and new map-room buttons)
     $$('[data-modal]').forEach((btn) => {
       btn.addEventListener('click', () => {
         markInteraction();
@@ -565,12 +553,19 @@ const TriviaModule = (() => {
   let currentQ = 0;
   let score = 0;
   let answered = false;
+  let playerName = '';
+  let playerAnswers = [];   // track each answer
+  let correctCount = 0;
 
   const elQuestion = $('#trivia-question');
   const elOptions = $('#trivia-options');
   const elFeedback = $('#trivia-feedback');
   const elNext = $('#trivia-next');
   const elScore = $('#trivia-score');
+  const elNameForm = $('#trivia-name-form');
+  const elNameInput = $('#trivia-player-name');
+  const elStartBtn = $('#trivia-start-btn');
+  const elGame = $('#trivia-game');
 
   function loadQuestion() {
     if (currentQ >= questions.length) {
@@ -602,6 +597,12 @@ const TriviaModule = (() => {
 
     const q = questions[currentQ];
     const buttons = $$('.trivia-option', elOptions);
+    const chosenText = q.options[index];
+    const isCorrect = index === q.answer;
+
+    // Record the answer
+    playerAnswers.push(chosenText);
+    if (isCorrect) correctCount++;
 
     buttons.forEach((btn, i) => {
       btn.classList.add('disabled');
@@ -609,7 +610,7 @@ const TriviaModule = (() => {
       if (i === index && i !== q.answer) btn.classList.add('wrong');
     });
 
-    if (index === q.answer) {
+    if (isCorrect) {
       score++;
       elFeedback.textContent = '✨ Correct! +10 points';
       elFeedback.style.color = '#27ae60';
@@ -635,12 +636,55 @@ const TriviaModule = (() => {
     else msg = '🧙 You might need to retake your O.W.L.s!';
 
     elScore.innerHTML = `<strong>${score}/${questions.length}</strong> correct (${pct}%)<br>${msg}`;
+
+    // Send trivia results to Google Sheets
+    sendTriviaResults();
+  }
+
+  function sendTriviaResults() {
+    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxWrAHdYBp3rhaBwSxV9rqZ8LeGPaF_uD2VgCIZZT6CYwDRoCMWT-Y1q9EaTC-blgHLjQ/exec';
+
+    const payload = {
+      type: 'trivia',
+      name: playerName,
+      score: score * 10,
+      answers: playerAnswers,
+      correctAnswers: correctCount,
+      totalQuestions: questions.length,
+      timestamp: new Date().toISOString(),
+    };
+
+    fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    }).catch(() => { /* silently fail */ });
   }
 
   function init() {
     currentQ = 0;
     score = 0;
-    loadQuestion();
+    playerAnswers = [];
+    correctCount = 0;
+
+    // Show name form, hide game
+    elNameForm.classList.remove('hidden');
+    elGame.classList.add('hidden');
+
+    // Start button handler
+    elStartBtn.onclick = () => {
+      const name = elNameInput.value.trim();
+      if (!name) {
+        elNameInput.classList.add('error');
+        return;
+      }
+      elNameInput.classList.remove('error');
+      playerName = name;
+      elNameForm.classList.add('hidden');
+      elGame.classList.remove('hidden');
+      loadQuestion();
+    };
 
     // "Next" button handler — re-bind to avoid duplication
     elNext.onclick = () => {
@@ -704,6 +748,7 @@ const RSVPModule = (() => {
         mode: 'no-cors',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          type: 'rsvp',
           firstName: data.firstName,
           lastName: data.lastName,
           people: data.people,

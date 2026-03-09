@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>You're Invited — A Magical Celebration</title>
+  <title>Luchi Fest</title>
   <meta name="description" content="A magical Harry Potter themed birthday invitation" />
 
   <!-- Google Fonts — wizard-style typography -->
@@ -29,21 +29,7 @@
     <!-- "Tap to open" prompt (hidden initially) -->
     <p id="tap-text" class="tap-text hidden">Toca para abrir</p>
 
-    <!-- Letter content revealed on open -->
-    <div id="letter-content" class="letter-content hidden" aria-label="Invitation letter">
-      <div class="letter-inner">
-        <p class="letter-school">HOGWARTS SCHOOL<br>of Witchcraft and Wizardry</p>
-        <hr class="letter-divider" />
-        <p class="letter-body">
-          Dear Wizard,<br><br>
-          We are pleased to inform you that you have been invited
-          to a <strong>most magical celebration</strong>.<br><br>
-          Please find enclosed details of the event.
-          We await your owl by no later than the date indicated.<br><br>
-          <em>Sincerely,<br>The Ministry of Magic</em>
-        </p>
-      </div>
-    </div>
+    <!-- Letter content removed — direct transition to main page -->
   </section>
 
   <!-- ══════════════════════════════════════════
@@ -65,37 +51,63 @@
     <!-- ─── Header Image ─── -->
     <header class="hero-section">
       <div class="hero-crest">
-        <!-- SVG Hogwarts-inspired crest rendered with CSS -->
-        <div class="crest-shield">
-          <span class="crest-letter">H</span>
-        </div>
+        <img src="Logo mapa merodeador.jpeg" alt="Logo Mapa del Merodeador" class="crest-image" />
         <h1 class="hero-title">Estás invitado</h1>
         <p class="hero-subtitle">a una celebración mágica</p>
       </div>
     </header>
 
-    <!-- ─── Countdown Timer ─── -->
+    <!-- ─── Countdown Timer (Potion Bottles) ─── -->
     <section class="countdown-section" aria-label="Event countdown">
       <h2 class="section-heading">La Magia Comienza En</h2>
       <div class="countdown-timer" id="countdown-timer">
-        <div class="countdown-unit">
-          <span class="countdown-number" id="countdown-days">00</span>
-          <span class="countdown-label">Días</span>
+        <div class="potion-bottle potion-red">
+          <div class="bottle-neck"><div class="bottle-cork"></div></div>
+          <div class="bottle-body">
+            <div class="bottle-liquid">
+              <div class="bubble b1"></div>
+              <div class="bubble b2"></div>
+              <div class="bubble b3"></div>
+              <span class="countdown-number" id="countdown-days">00</span>
+            </div>
+          </div>
+          <div class="bottle-label"><span>Días</span></div>
         </div>
-        <div class="countdown-separator">⚡</div>
-        <div class="countdown-unit">
-          <span class="countdown-number" id="countdown-hours">00</span>
-          <span class="countdown-label">Horas</span>
+        <div class="potion-bottle potion-blue">
+          <div class="bottle-neck"><div class="bottle-cork"></div></div>
+          <div class="bottle-body">
+            <div class="bottle-liquid">
+              <div class="bubble b1"></div>
+              <div class="bubble b2"></div>
+              <div class="bubble b3"></div>
+              <span class="countdown-number" id="countdown-hours">00</span>
+            </div>
+          </div>
+          <div class="bottle-label"><span>Horas</span></div>
         </div>
-        <div class="countdown-separator">⚡</div>
-        <div class="countdown-unit">
-          <span class="countdown-number" id="countdown-minutes">00</span>
-          <span class="countdown-label">Min</span>
+        <div class="potion-bottle potion-green">
+          <div class="bottle-neck"><div class="bottle-cork"></div></div>
+          <div class="bottle-body">
+            <div class="bottle-liquid">
+              <div class="bubble b1"></div>
+              <div class="bubble b2"></div>
+              <div class="bubble b3"></div>
+              <span class="countdown-number" id="countdown-minutes">00</span>
+            </div>
+          </div>
+          <div class="bottle-label"><span>Min</span></div>
         </div>
-        <div class="countdown-separator">⚡</div>
-        <div class="countdown-unit">
-          <span class="countdown-number" id="countdown-seconds">00</span>
-          <span class="countdown-label">Seg</span>
+        <div class="potion-bottle potion-yellow">
+          <div class="bottle-neck"><div class="bottle-cork"></div></div>
+          <div class="bottle-body">
+            <div class="bottle-liquid">
+              <div class="bubble b1"></div>
+              <div class="bubble b2"></div>
+              <div class="bubble b3"></div>
+              <span class="countdown-number" id="countdown-seconds">00</span>
+            </div>
+          </div>
+          <div class="bottle-label"><span>Seg</span></div>
         </div>
       </div>
     </section>
@@ -142,29 +154,58 @@
       </div>
     </section>
 
-    <!-- ─── Action Buttons ─── -->
+    <!-- ─── Action Buttons (Marauder's Map Rooms) ─── -->
     <section class="buttons-section" aria-label="Event details">
       <h2 class="section-heading">Event Details</h2>
-      <div class="buttons-stack">
-        <button class="magic-btn" data-modal="modal-date">
-          <span class="btn-icon">📅</span> Date
-        </button>
-        <button class="magic-btn" data-modal="modal-location">
-          <span class="btn-icon">📍</span> Location
-        </button>
-        <button class="magic-btn" data-modal="modal-dresscode">
-          <span class="btn-icon">🧙</span> Dress Code
-        </button>
-        <button class="magic-btn" data-modal="modal-gifts">
-          <span class="btn-icon">🎁</span> Gifts / Transfer Alias
-        </button>
-        <button class="magic-btn" data-modal="modal-photos">
-          <span class="btn-icon">📸</span> Upload Photos
-        </button>
-        <button class="magic-btn" data-modal="modal-trivia">
-          <span class="btn-icon">⚡</span> Trivia Game
-        </button>
-        <button class="magic-btn magic-btn--primary" data-modal="modal-rsvp">Confirmar asistencia</button>
+      <div class="map-rooms">
+        <div class="map-room-wrapper map-room-left">
+          <button class="map-room" data-modal="modal-date">
+            <span class="room-icon">📅</span>
+            <span class="room-label">Date</span>
+          </button>
+          <div class="map-path path-right"></div>
+        </div>
+        <div class="map-room-wrapper map-room-right">
+          <button class="map-room" data-modal="modal-location">
+            <span class="room-icon">📍</span>
+            <span class="room-label">Location</span>
+          </button>
+          <div class="map-path path-left"></div>
+        </div>
+        <div class="map-room-wrapper map-room-left">
+          <button class="map-room" data-modal="modal-dresscode">
+            <span class="room-icon">🧙</span>
+            <span class="room-label">Dress Code</span>
+          </button>
+          <div class="map-path path-right"></div>
+        </div>
+        <div class="map-room-wrapper map-room-right">
+          <button class="map-room" data-modal="modal-gifts">
+            <span class="room-icon">🎁</span>
+            <span class="room-label">Gifts</span>
+          </button>
+          <div class="map-path path-left"></div>
+        </div>
+        <div class="map-room-wrapper map-room-left">
+          <button class="map-room" data-modal="modal-photos">
+            <span class="room-icon">📸</span>
+            <span class="room-label">Photos</span>
+          </button>
+          <div class="map-path path-right"></div>
+        </div>
+        <div class="map-room-wrapper map-room-right">
+          <button class="map-room" data-modal="modal-trivia">
+            <span class="room-icon">⚡</span>
+            <span class="room-label">Trivia</span>
+          </button>
+          <div class="map-path path-left"></div>
+        </div>
+        <div class="map-room-wrapper map-room-left">
+          <button class="map-room map-room--primary" data-modal="modal-rsvp">
+            <span class="room-icon">🦉</span>
+            <span class="room-label">Confirmar asistencia</span>
+          </button>
+        </div>
       </div>
     </section>
 
@@ -255,11 +296,19 @@
       <h3 class="modal-title">⚡ Trivia Game</h3>
       <div class="modal-body">
         <div id="trivia-container">
-          <p id="trivia-question" class="trivia-question"></p>
-          <div id="trivia-options" class="trivia-options"></div>
-          <p id="trivia-feedback" class="trivia-feedback"></p>
-          <button id="trivia-next" class="magic-btn magic-btn--small hidden">Next Question ➡️</button>
-          <p id="trivia-score" class="trivia-score"></p>
+          <!-- Name input before trivia starts -->
+          <div id="trivia-name-form" class="trivia-name-form">
+            <label class="form-label" for="trivia-player-name">Tu nombre mágico <span class="required">*</span></label>
+            <input type="text" id="trivia-player-name" class="form-input" placeholder="Harry Potter" required />
+            <button id="trivia-start-btn" class="magic-btn magic-btn--small" style="margin-top:var(--space-md);width:100%;">Comenzar Trivia ⚡</button>
+          </div>
+          <div id="trivia-game" class="hidden">
+            <p id="trivia-question" class="trivia-question"></p>
+            <div id="trivia-options" class="trivia-options"></div>
+            <p id="trivia-feedback" class="trivia-feedback"></p>
+            <button id="trivia-next" class="magic-btn magic-btn--small hidden">Next Question ➡️</button>
+            <p id="trivia-score" class="trivia-score"></p>
+          </div>
         </div>
       </div>
     </div>
