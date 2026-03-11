@@ -543,76 +543,192 @@ body::before {
   margin: 0 auto;
 }
 
-/* Potion bottle structure */
+/* Potion bottle structure — Round flask with neck */
 .potion-bottle {
   display: flex;
   flex-direction: column;
   align-items: center;
   position: relative;
+  padding-top: 10px;
+  width: fit-content;
+  margin: 0 auto;
 }
 
+/* Flask neck — glass tube connecting cork to body */
 .bottle-neck {
-  width: 24px;
+  width: 22px;
   height: 18px;
-  background: linear-gradient(180deg, #8B7355, #6B5340);
-  border-radius: 3px 3px 0 0;
-  position: relative;
-  z-index: 2;
-  border: 1.5px solid rgba(90, 60, 30, 0.5);
+  background: linear-gradient(90deg,
+    rgba(255, 255, 255, 0.05),
+    rgba(255, 255, 255, 0.14),
+    rgba(255, 255, 255, 0.05));
+  border: 2px solid rgba(255, 255, 255, 0.22);
   border-bottom: none;
+  border-radius: 4px 4px 0 0;
+  position: relative;
+  z-index: 3;
+  margin-bottom: -2px;
 }
 
+/* String tied around the neck */
+.bottle-neck::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: -2px;
+  right: -2px;
+  height: 2px;
+  background: rgba(107, 76, 59, 0.8);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.3);
+  transform: translateY(-50%);
+  border-radius: 1px;
+  z-index: 4;
+}
+
+/* Cork / stopper */
 .bottle-cork {
   width: 28px;
-  height: 10px;
-  background: linear-gradient(180deg, #A0522D, #8B4513);
-  border-radius: 3px 3px 0 0;
+  height: 11px;
+  background: linear-gradient(180deg, #C68642, #8B4513, #6B3410);
+  border-radius: 4px 4px 1px 1px;
   position: absolute;
-  top: -8px;
+  top: -9px;
   left: 50%;
   transform: translateX(-50%);
-  border: 1px solid rgba(139, 69, 19, 0.6);
+  border: 1px solid rgba(107, 52, 16, 0.6);
+  box-shadow:
+    inset 0 2px 3px rgba(255, 200, 100, 0.25),
+    0 -1px 3px rgba(0, 0, 0, 0.2);
 }
 
+/* Cork wood grain texture */
+.bottle-cork::before {
+  content: '';
+  position: absolute;
+  inset: 2px 4px;
+  background: repeating-linear-gradient(90deg,
+    transparent, transparent 3px,
+    rgba(0, 0, 0, 0.08) 3px, rgba(0, 0, 0, 0.08) 4px);
+  border-radius: 2px;
+}
+
+/* Round flask body */
 .bottle-body {
-  width: 72px;
+  width: 90px;
   height: 90px;
-  background: rgba(255, 255, 255, 0.12);
-  border: 2px solid rgba(255, 255, 255, 0.2);
-  border-radius: 8px 8px 18px 18px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 2.5px solid rgba(255, 255, 255, 0.25);
+  border-radius: 50%;
   position: relative;
   overflow: hidden;
   box-shadow:
-    inset 0 0 20px rgba(255, 255, 255, 0.05),
-    0 4px 15px rgba(0, 0, 0, 0.2);
+    inset 0 0 25px rgba(255, 255, 255, 0.06),
+    0 4px 20px rgba(0, 0, 0, 0.25);
+  animation: potionGlow 3s ease-in-out infinite alternate;
 }
 
+@keyframes potionGlow {
+  0% { filter: brightness(1); }
+  100% { filter: brightness(1.1); }
+}
+
+/* Glass highlight — main crescent */
+.bottle-body::before {
+  content: '';
+  position: absolute;
+  top: 6%;
+  left: 12%;
+  width: 32%;
+  height: 24%;
+  background: radial-gradient(ellipse, rgba(255, 255, 255, 0.4) 0%, transparent 70%);
+  border-radius: 50%;
+  z-index: 5;
+  pointer-events: none;
+}
+
+/* Glass highlight — secondary dot */
+.bottle-body::after {
+  content: '';
+  position: absolute;
+  top: 15%;
+  right: 18%;
+  width: 8%;
+  height: 8%;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  z-index: 5;
+  pointer-events: none;
+}
+
+/* Liquid — fills bottom ~80 % of the flask, NOT the neck */
 .bottle-liquid {
   position: absolute;
   bottom: 0;
-  left: 0;
-  right: 0;
-  height: 85%;
-  border-radius: 0 0 16px 16px;
+  left: -5%;
+  right: -5%;
+  width: 110%;
+  height: 80%;
   display: flex;
   align-items: center;
   justify-content: center;
-  overflow: hidden;
+  /* We use animated border-radius to create liquid waves at the top */
+  border-radius: 40% 60% 0 0 / 5% 10% 0 0;
+  animation: liquidWave 4s ease-in-out infinite alternate;
+}
+
+@keyframes liquidWave {
+  0% {
+    border-radius: 45% 55% 0 0 / 8% 12% 0 0;
+    transform: translateY(2px) translateX(-2%);
+  }
+  50% {
+    border-radius: 50% 50% 0 0 / 10% 15% 0 0;
+    transform: translateY(-1px) translateX(0);
+  }
+  100% {
+    border-radius: 55% 45% 0 0 / 12% 8% 0 0;
+    transform: translateY(2px) translateX(2%);
+  }
+}
+
+/* Surface meniscus shine */
+.bottle-liquid::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg,
+    transparent 10%,
+    rgba(255, 255, 255, 0.25) 30%,
+    rgba(255, 255, 255, 0.4) 50%,
+    rgba(255, 255, 255, 0.25) 70%,
+    transparent 90%);
+  z-index: 4;
+  animation: surfaceShine 3.5s ease-in-out infinite alternate;
+}
+
+/* Removed old liquidSway since we use liquidWave now */
+
+@keyframes surfaceShine {
+  0% { transform: translateX(-4px); opacity: 0.7; }
+  100% { transform: translateX(4px); opacity: 1; }
 }
 
 /* Bubble animation */
 .bubble {
   position: absolute;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.35);
   animation: bubbleRise 3s ease-in infinite;
 }
 
 .bubble.b1 {
   width: 5px;
   height: 5px;
-  left: 20%;
-  bottom: 0;
+  left: 25%;
+  bottom: 10%;
   animation-delay: 0s;
   animation-duration: 2.5s;
 }
@@ -621,7 +737,7 @@ body::before {
   width: 3px;
   height: 3px;
   left: 55%;
-  bottom: 0;
+  bottom: 10%;
   animation-delay: 0.8s;
   animation-duration: 3.2s;
 }
@@ -629,8 +745,8 @@ body::before {
 .bubble.b3 {
   width: 4px;
   height: 4px;
-  left: 75%;
-  bottom: 0;
+  left: 70%;
+  bottom: 10%;
   animation-delay: 1.6s;
   animation-duration: 2.8s;
 }
@@ -638,87 +754,152 @@ body::before {
 @keyframes bubbleRise {
   0% {
     transform: translateY(0) scale(1);
-    opacity: 0.6;
+    opacity: 0.7;
   }
   50% {
     opacity: 0.4;
   }
   100% {
-    transform: translateY(-80px) scale(0.3);
+    transform: translateY(-55px) scale(0.3);
     opacity: 0;
   }
 }
 
-/* Potion colors */
+/* Neck tinted per potion colour */
+.potion-red .bottle-neck {
+  background: linear-gradient(90deg, rgba(200,30,30,0.08), rgba(200,30,30,0.22), rgba(200,30,30,0.08));
+  border-color: rgba(200, 30, 30, 0.35);
+}
+.potion-blue .bottle-neck {
+  background: linear-gradient(90deg, rgba(40,100,200,0.08), rgba(40,100,200,0.22), rgba(40,100,200,0.08));
+  border-color: rgba(40, 100, 200, 0.35);
+}
+.potion-green .bottle-neck {
+  background: linear-gradient(90deg, rgba(30,160,70,0.08), rgba(30,160,70,0.22), rgba(30,160,70,0.08));
+  border-color: rgba(30, 160, 70, 0.35);
+}
+.potion-yellow .bottle-neck {
+  background: linear-gradient(90deg, rgba(220,180,30,0.08), rgba(220,180,30,0.22), rgba(220,180,30,0.08));
+  border-color: rgba(220, 180, 30, 0.35);
+}
+
+/* Potion colours — liquid gradient + body glow */
 .potion-red .bottle-liquid {
-  background: linear-gradient(180deg, rgba(200, 30, 30, 0.7), rgba(140, 10, 10, 0.9));
+  background: radial-gradient(circle at 45% 45%, rgba(220, 50, 50, 0.72), rgba(140, 10, 10, 0.96));
 }
 .potion-red .bottle-body {
-  border-color: rgba(200, 30, 30, 0.4);
+  border-color: rgba(200, 30, 30, 0.5);
   box-shadow:
-    inset 0 0 20px rgba(200, 30, 30, 0.15),
-    0 4px 15px rgba(200, 30, 30, 0.2);
+    inset 0 0 25px rgba(200, 30, 30, 0.2),
+    0 0 18px rgba(200, 30, 30, 0.3),
+    0 4px 20px rgba(0, 0, 0, 0.25);
 }
 
 .potion-blue .bottle-liquid {
-  background: linear-gradient(180deg, rgba(40, 100, 200, 0.7), rgba(20, 60, 150, 0.9));
+  background: radial-gradient(circle at 45% 45%, rgba(60, 120, 220, 0.72), rgba(20, 60, 150, 0.96));
 }
 .potion-blue .bottle-body {
-  border-color: rgba(40, 100, 200, 0.4);
+  border-color: rgba(40, 100, 200, 0.5);
   box-shadow:
-    inset 0 0 20px rgba(40, 100, 200, 0.15),
-    0 4px 15px rgba(40, 100, 200, 0.2);
+    inset 0 0 25px rgba(40, 100, 200, 0.2),
+    0 0 18px rgba(40, 100, 200, 0.3),
+    0 4px 20px rgba(0, 0, 0, 0.25);
 }
 
 .potion-green .bottle-liquid {
-  background: linear-gradient(180deg, rgba(30, 160, 70, 0.7), rgba(15, 100, 40, 0.9));
+  background: radial-gradient(circle at 45% 45%, rgba(50, 180, 80, 0.72), rgba(15, 100, 40, 0.96));
 }
 .potion-green .bottle-body {
-  border-color: rgba(30, 160, 70, 0.4);
+  border-color: rgba(30, 160, 70, 0.5);
   box-shadow:
-    inset 0 0 20px rgba(30, 160, 70, 0.15),
-    0 4px 15px rgba(30, 160, 70, 0.2);
+    inset 0 0 25px rgba(30, 160, 70, 0.2),
+    0 0 18px rgba(30, 160, 70, 0.3),
+    0 4px 20px rgba(0, 0, 0, 0.25);
 }
 
 .potion-yellow .bottle-liquid {
-  background: linear-gradient(180deg, rgba(220, 180, 30, 0.7), rgba(180, 140, 10, 0.9));
+  background: radial-gradient(circle at 45% 45%, rgba(230, 190, 40, 0.72), rgba(180, 140, 10, 0.96));
 }
 .potion-yellow .bottle-body {
-  border-color: rgba(220, 180, 30, 0.4);
+  border-color: rgba(220, 180, 30, 0.5);
   box-shadow:
-    inset 0 0 20px rgba(220, 180, 30, 0.15),
-    0 4px 15px rgba(220, 180, 30, 0.2);
+    inset 0 0 25px rgba(220, 180, 30, 0.2),
+    0 0 18px rgba(220, 180, 30, 0.3),
+    0 4px 20px rgba(0, 0, 0, 0.25);
 }
 
+/* Countdown number — centred inside the liquid */
 .countdown-number {
   font-family: var(--font-display);
   font-size: 1.5rem;
   font-weight: 700;
   color: #fff;
-  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
-  line-height: 1.2;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.6), 0 0 12px rgba(255, 255, 255, 0.15);
+  line-height: 1;
   position: relative;
-  z-index: 2;
+  z-index: 3;
 }
 
-/* Parchment-style label */
+/* ── Hanging parchment label (tied to the neck with string) ── */
 .bottle-label {
-  margin-top: 6px;
-  padding: 3px 12px;
+  position: absolute;
+  top: 25px;
+  left: 65px;
+  z-index: 6;
+  padding: 2px 8px;
   background:
-    linear-gradient(180deg, #f5e6c8, #dcc89d);
-  border: 1.5px solid var(--parchment-darker);
-  border-radius: 3px;
-  position: relative;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+    linear-gradient(180deg,
+      rgba(248, 235, 210, 0.96),
+      rgba(220, 198, 155, 0.93));
+  border: 1px solid rgba(150, 110, 70, 0.55);
+  border-radius: 2px;
+  box-shadow:
+    0 1px 4px rgba(0, 0, 0, 0.22),
+    inset 0 0 6px rgba(139, 90, 43, 0.08);
+  pointer-events: none;
+  transform-origin: bottom left;
+  animation: labelSwing 4s ease-in-out infinite alternate;
+  text-align: left;
+}
+
+/* String connecting label to the neck */
+.bottle-label::before {
+  content: '';
+  position: absolute;
+  bottom: 4px;
+  right: 100%;
+  width: 25px;
+  height: 1px;
+  background: rgba(107, 76, 59, 0.7);
+  transform-origin: right bottom;
+  transform: rotate(-10deg);
+}
+
+/* Tiny hole in the label where the string passes */
+.bottle-label::after {
+  content: '';
+  position: absolute;
+  bottom: 2px;
+  left: 3px;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: rgba(107, 76, 59, 0.3);
+}
+
+@keyframes labelSwing {
+  0% { transform: rotate(43deg); }
+  100% { transform: rotate(47deg); }
 }
 
 .bottle-label span {
+  display: block;
   font-family: var(--font-heading);
-  font-size: 0.65rem;
+  font-size: 0.55rem;
   color: var(--ink);
   text-transform: uppercase;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.1em;
+  text-align: left;
 }
 
 /* Remove old countdown-separator, countdown-unit, countdown-label */
@@ -817,6 +998,7 @@ body::before {
   position: relative;
   z-index: 2;
   padding: var(--space-xl) var(--space-lg);
+  /* Asegúrate de que el fondo de tu página o sección sea un color pergamino claro, ej: #f4ebd8 */
 }
 
 .map-rooms {
@@ -830,7 +1012,7 @@ body::before {
 
 .map-room-wrapper {
   position: relative;
-  width: 66.66%;
+  width: 55%; /* Más estrecho para que los caminos tengan una curva más pronunciada */
   margin-bottom: 0;
 }
 
@@ -842,119 +1024,147 @@ body::before {
   align-self: flex-end;
 }
 
-/* Map room button */
+/* ─── Map Room Button (Diseño exacto de la imagen) ─── */
 .map-room {
   display: flex;
+  flex-direction: column; /* Coloca el icono arriba y el texto abajo */
   align-items: center;
-  gap: var(--space-sm);
+  justify-content: center;
+  gap: 8px;
   width: 100%;
-  padding: var(--space-md) var(--space-lg);
-  border: 2px solid var(--parchment-darker);
-  border-radius: 4px;
-  background:
-    radial-gradient(ellipse at 30% 20%, rgba(245, 230, 200, 0.5), transparent 60%),
-    linear-gradient(180deg, #f5e6c8, #e2d09a);
-  color: var(--ink);
-  font-family: var(--font-heading);
-  font-size: 0.95rem;
-  font-weight: 600;
-  letter-spacing: 0.04em;
+  padding: 20px 15px; /* Más acolchado para que se vea rectangular */
+  
+  /* Color pergamino como en la imagen */
+  background-color: #e4cd9f; 
+  
+  /* Borde oscuro y grueso */
+  border: 3px solid #3c2415;
+  border-radius: 0; 
+  
+  color: #3c2415; 
+  font-family: 'Georgia', 'Times New Roman', serif; 
+  font-size: 1.1rem;
+  font-weight: bold;
+  letter-spacing: 0.05em;
   cursor: pointer;
   transition: all 0.3s ease;
   position: relative;
   text-decoration: none;
   -webkit-tap-highlight-color: transparent;
-  box-shadow: 0 2px 8px rgba(44, 24, 16, 0.15);
+  
+  /* Sombra para darle profundidad al papel */
+  box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.15), inset 0 0 20px rgba(139, 90, 43, 0.2);
 }
 
+/* Línea interna doble (El marco delgado adentro) */
 .map-room::before {
   content: '';
   position: absolute;
-  inset: -2px;
-  border-radius: 6px;
-  border: 1px dashed var(--ink-faded);
-  opacity: 0.3;
+  inset: 4px; /* Separación del borde exterior */
+  border: 1px solid #3c2415;
   pointer-events: none;
 }
 
 .map-room:hover,
 .map-room:focus {
-  border-color: var(--gold);
-  box-shadow:
-    0 0 15px rgba(212, 168, 67, 0.4),
-    0 2px 8px rgba(44, 24, 16, 0.15);
+  background-color: #ebdcb2;
   transform: translateY(-2px);
+  box-shadow: 5px 5px 15px rgba(60, 36, 21, 0.2), inset 0 0 20px rgba(139, 90, 43, 0.1); 
 }
 
 .map-room:active {
   transform: translateY(0);
 }
 
+/* Botón Principal (RSVP) - Con textura extra */
 .map-room--primary {
-  background: linear-gradient(180deg, #ae0001, #7b0001);
-  color: var(--gold-glow);
-  border-color: rgba(212, 168, 67, 0.5);
-  font-weight: 700;
+  background-color: #3c2415; 
+  border-color: #e4cd9f;
+  color: #e4cd9f;
+}
+
+.map-room--primary::before {
+  border: 1px solid #e4cd9f;
 }
 
 .map-room--primary:hover,
 .map-room--primary:focus {
-  background: linear-gradient(180deg, #c0392b, #8b0001);
-  border-color: var(--gold);
+  background-color: #5a3c24;
 }
 
+/* ─── Iconos ─── */
 .room-icon {
-  font-size: 1.2rem;
+  width: 48px;
+  height: 48px;
   flex-shrink: 0;
+  color: #3c2415;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
 }
 
 .room-label {
-  white-space: nowrap;
+  text-align: center;
 }
 
-/* Map path connections */
+.room-icon img {
+  width: 48px;
+  height: 48px;
+}
+
+/* ─── Pasillos del Mapa (Huellas Animadas por Scroll) ─── */
 .map-path {
   position: relative;
-  height: 40px;
-  width: 100%;
+  height: 90px; /* Separación vertical entre botones */
+  width: 85%;
+  pointer-events: none;
+  /* Estado inicial: oculto arriba */
+  clip-path: polygon(0 0, 100% 0, 100% 0%, 0 0%);
 }
 
-.map-path::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  height: 100%;
-  border-left: 2px dashed var(--ink-faded);
-  opacity: 0.35;
+/* Solo se activan cuando la sección entra en el viewport (.revealed o .is-visible) */
+.buttons-section.revealed .map-path,
+.buttons-section.is-visible .map-path {
+  animation: revelarPasos 1.5s linear forwards;
 }
 
-.map-path::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  height: 2px;
-  border-top: 2px dashed var(--ink-faded);
-  opacity: 0.35;
+/* Animación que "baja el telón", revelando las huellas poco a poco */
+@keyframes revelarPasos {
+  0% { clip-path: polygon(0 0, 100% 0, 100% 0%, 0 0%); }
+  100% { clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); }
 }
 
-/* Path from left room to right room */
-.map-room-left .map-path.path-right::before {
-  right: 0;
-}
-.map-room-left .map-path.path-right::after {
-  right: 0;
-  width: calc(100% / 2 + 50%);
-  transform: translateX(50%);
+/* Sincronización de los pasos: 
+  Le damos un retraso ('delay') a cada camino para que empiecen uno después del otro. 
+*/
+.map-room-wrapper:nth-child(1) .map-path { animation-delay: 0.5s; }
+.map-room-wrapper:nth-child(2) .map-path { animation-delay: 2.0s; }
+.map-room-wrapper:nth-child(3) .map-path { animation-delay: 3.5s; }
+.map-room-wrapper:nth-child(4) .map-path { animation-delay: 5.0s; }
+.map-room-wrapper:nth-child(5) .map-path { animation-delay: 6.5s; }
+.map-room-wrapper:nth-child(6) .map-path { animation-delay: 8.0s; }
+
+
+/* Camino Izquierda -> Derecha */
+.map-room-left .map-path.path-right {
+  left: 50%;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 90' preserveAspectRatio='none'%3E%3Cdefs%3E%3Cg id='f'%3E%3Cpath fill='%233c2415' opacity='0.75' transform='scale(1.6)' d='M0,-1.5 C2,-4 6,-3 8,-1 C9,1 7,3 4,2.5 C2,2 1,3.5 0,1.5 Z M-5,0 C-5,-2 -2,-2 -1,-0.5 C-0.5,0.5 -2,2 -4,1 C-5,0.5 -5,0 -5,0 Z'/%3E%3C/g%3E%3C/defs%3E%3Cuse href='%23f' transform='translate(22.9,10) rotate(73) translate(0,-5) scale(1,1)'/%3E%3Cuse href='%23f' transform='translate(36.6,22.3) rotate(50) translate(0,5) scale(1,-1)'/%3E%3Cuse href='%23f' transform='translate(58.7,32.3) rotate(36) translate(0,-5) scale(1,1)'/%3E%3Cuse href='%23f' transform='translate(85.7,40.9) rotate(30) translate(0,5) scale(1,-1)'/%3E%3Cuse href='%23f' transform='translate(114.3,49.1) rotate(30) translate(0,-5) scale(1,1)'/%3E%3Cuse href='%23f' transform='translate(141.3,57.7) rotate(36) translate(0,5) scale(1,-1)'/%3E%3Cuse href='%23f' transform='translate(163.4,67.7) rotate(50) translate(0,-5) scale(1,1)'/%3E%3Cuse href='%23f' transform='translate(177.1,80) rotate(73) translate(0,5) scale(1,-1)'/%3E%3C/svg%3E");
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
 }
 
-/* Path from right room to left room */
-.map-room-right .map-path.path-left::before {
-  left: 0;
-}
-.map-room-right .map-path.path-left::after {
-  left: 0;
-  width: calc(100% / 2 + 50%);
-  transform: translateX(-50%);
+/* Camino Derecha -> Izquierda */
+.map-room-right .map-path.path-left {
+  right: 50%;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 90' preserveAspectRatio='none'%3E%3Cdefs%3E%3Cg id='f'%3E%3Cpath fill='%233c2415' opacity='0.75' transform='scale(1.6)' d='M0,-1.5 C2,-4 6,-3 8,-1 C9,1 7,3 4,2.5 C2,2 1,3.5 0,1.5 Z M-5,0 C-5,-2 -2,-2 -1,-0.5 C-0.5,0.5 -2,2 -4,1 C-5,0.5 -5,0 -5,0 Z'/%3E%3C/g%3E%3C/defs%3E%3Cuse href='%23f' transform='translate(177.1,10) rotate(107) translate(0,-5) scale(1,1)'/%3E%3Cuse href='%23f' transform='translate(163.4,22.3) rotate(130) translate(0,5) scale(1,-1)'/%3E%3Cuse href='%23f' transform='translate(141.3,32.3) rotate(144) translate(0,-5) scale(1,1)'/%3E%3Cuse href='%23f' transform='translate(114.3,40.9) rotate(150) translate(0,5) scale(1,-1)'/%3E%3Cuse href='%23f' transform='translate(85.7,49.1) rotate(150) translate(0,-5) scale(1,1)'/%3E%3Cuse href='%23f' transform='translate(58.7,57.7) rotate(144) translate(0,5) scale(1,-1)'/%3E%3Cuse href='%23f' transform='translate(36.6,67.7) rotate(130) translate(0,-5) scale(1,1)'/%3E%3Cuse href='%23f' transform='translate(22.9,80) rotate(107) translate(0,5) scale(1,-1)'/%3E%3C/svg%3E");
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
 }
 
 /* Keep old magic-btn styles for modals/trivia use */
@@ -1057,6 +1267,11 @@ body::before {
 .footer-sub {
   font-size: 0.85rem;
   opacity: 0.7;
+}
+
+footer img {
+  width: 100px;
+  height: 100px;
 }
 
 /* ══════════════════════════════════════════════════════════
@@ -1390,8 +1605,22 @@ body::before {
   }
 
   .bottle-body {
-    width: 80px;
+    width: 100px;
     height: 100px;
+  }
+
+  .bottle-neck {
+    width: 24px;
+    height: 20px;
+  }
+
+  .bottle-cork {
+    width: 30px;
+  }
+
+  .bottle-label {
+    top: 25px;
+    left: 70px;
   }
 
   .map-rooms {
@@ -1447,8 +1676,26 @@ body::before {
   }
 
   .bottle-body {
-    width: 90px;
-    height: 110px;
+    width: 115px;
+    height: 115px;
+  }
+
+  .bottle-neck {
+    width: 26px;
+    height: 22px;
+  }
+
+  .bottle-cork {
+    width: 32px;
+  }
+
+  .bottle-label {
+    top: 25px;
+    left: 80px;
+  }
+
+  .bottle-label span {
+    font-size: 0.6rem;
   }
 
   .map-rooms {
