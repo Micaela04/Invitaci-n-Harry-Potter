@@ -297,31 +297,61 @@ const FootstepsModule = (() => {
   const prints = ['huellas.gif'];
   let stepIndex = 0;
 
-  /* Walking path: coordinates along border of the viewport */
+  function getExcludedZone() {
+    const el = document.querySelector('.map-rooms');
+    if (!el) return null;
+    const rect = el.getBoundingClientRect();
+    return {
+      left: rect.left + window.scrollX,
+      right: rect.right + window.scrollX,
+      top: rect.top + window.scrollY,
+      bottom: rect.bottom + window.scrollY
+    };
+  }
+
   function getNextPosition() {
-    const w = window.innerWidth;
-    const h = window.innerHeight;
+    const w = document.documentElement.clientWidth;
     const scroll = window.scrollY;
-    const pad = 30;
+    const viewH = window.innerHeight;
+    const docH = document.documentElement.scrollHeight;
+    const stepSize = w >= 1024 ? 300 : w >= 600 ? 250 : 200;
+    const isDesktop = w >= 1024;
+    const ex = getExcludedZone();
 
-    // Walk along 4 borders in a cycle
-    const side = stepIndex % 4;
-    stepIndex++;
+    for (let attempt = 0; attempt < 20; attempt++) {
+      // Y: random within current viewport, clamped to document
+      const y = scroll + Math.random() * (viewH - stepSize);
+      const clampedY = Math.max(0, Math.min(y, docH - stepSize));
 
-    switch (side) {
-      case 0: // top border
-        return { x: pad + Math.random() * (w - pad * 2), y: scroll + pad + Math.random() * 40 };
-      case 1: // right border
-        return { x: w - pad - Math.random() * 40, y: scroll + pad + Math.random() * (h - pad * 2) };
-      case 2: // bottom border
-        return { x: pad + Math.random() * (w - pad * 2), y: scroll + h - pad - Math.random() * 40 };
-      case 3: // left border
-        return { x: pad + Math.random() * 40, y: scroll + pad + Math.random() * (h - pad * 2) };
+      let x;
+      const currentSide = stepIndex % 2;
+      
+      // X: full random on desktop, left/right edges only on mobile
+      if (isDesktop) {
+        x = Math.random() * (w - stepSize);
+      } else {
+        x = currentSide === 0 ? Math.random() * 20 : w - stepSize - Math.random() * 20;
+      }
+
+      // Check if it overlaps with map-rooms
+      if (ex) {
+        const overlapX = x < ex.right && (x + stepSize) > ex.left;
+        const overlapY = clampedY < ex.bottom && (clampedY + stepSize) > ex.top;
+        if (overlapX && overlapY) {
+          continue; // Skip this try and loop again
+        }
+      }
+
+      stepIndex++;
+      return { x, y: clampedY };
     }
+
+    return null;
   }
 
   function spawnStep() {
     const pos = getNextPosition();
+    if (!pos) return; // skip if viewport is past the allowed zone
     const step = document.createElement('div');
     step.classList.add('footstep');
     

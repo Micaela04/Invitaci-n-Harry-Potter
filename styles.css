@@ -69,6 +69,11 @@ body {
   line-height: 1.6;
 }
 
+.main-page {
+  overflow-x: hidden;
+  position: relative;
+}
+
 /* Parchment texture overlay for the whole page */
 body::before {
   content: '';
@@ -362,6 +367,22 @@ body::before {
   transition: opacity 1.5s ease;
 }
 
+.main-page::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url('Mapa merodeador 2.png');
+  background-size: 100% auto;
+  background-position: top center;
+  background-repeat: repeat;
+  opacity: 0.08;
+  z-index: -1;
+  pointer-events: none;
+}
+
 .main-page.visible {
   opacity: 1;
 }
@@ -383,6 +404,7 @@ body::before {
   height: 100%;
   z-index: 0;
   pointer-events: none;
+  overflow: hidden;
 }
 
 .footstep {
@@ -481,10 +503,8 @@ body::before {
 }
 
 .crest-image {
-  width: 120px;
+  width: 280px;
   height: auto;
-  border-radius: 12px;
-  box-shadow: var(--shadow-magic);
   object-fit: contain;
 }
 
@@ -1008,6 +1028,7 @@ body::before {
   max-width: 450px;
   margin: 0 auto;
   position: relative;
+  z-index: 3;
 }
 
 .map-room-wrapper {
@@ -1592,7 +1613,7 @@ footer img {
   }
 
   .crest-image {
-    width: 160px;
+    width: 300px;
   }
 
   .countdown-timer {
@@ -1654,6 +1675,10 @@ footer img {
    ══════════════════════════════════════════════════════════ */
 
 @media (min-width: 1024px) {
+  .main-page::before {
+    background-size: 50% auto;
+  }
+  
   .hero-title {
     font-size: 3rem;
   }
@@ -1663,7 +1688,7 @@ footer img {
   }
 
   .crest-image {
-    width: 180px;
+    width: 320px;
   }
 
   .countdown-timer {
@@ -1704,11 +1729,6 @@ footer img {
 
   .carousel-wrapper {
     max-width: 600px;
-  }
-
-  .main-page {
-    max-width: 900px;
-    margin: 0 auto;
   }
 
   .section-heading {
