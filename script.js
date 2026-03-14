@@ -10,7 +10,7 @@
    ───────────────────────────────────────────── */
 const CONFIG = {
   /* Event date for the countdown (YYYY-MM-DDTHH:MM:SS) */
-  eventDate: '2026-06-04T21:00:00',
+  eventDate: '2026-03-15T01:40:00',
 
   /* Number of envelopes to spawn */
   envelopeCount: 10,
@@ -108,7 +108,7 @@ const IntroModule = (() => {
     }
 
     // Hide catch text
-    catchText.classList.add('hidden-anim');
+    catchText.classList.add('hidden');
 
     // Fade away other envelopes
     $$('.envelope', container).forEach((e) => {
@@ -174,28 +174,189 @@ const CountdownModule = (() => {
   const elMins = $('#countdown-minutes');
   const elSecs = $('#countdown-seconds');
   let interval = null;
+  let fireworksStarted = false;
 
   function update() {
     const now = Date.now();
     const target = new Date(CONFIG.eventDate).getTime();
-    let diff = Math.max(0, target - now);
+    let totalDiff = target - now;
 
-    const d = Math.floor(diff / 86400000); diff %= 86400000;
-    const h = Math.floor(diff / 3600000); diff %= 3600000;
-    const m = Math.floor(diff / 60000); diff %= 60000;
-    const s = Math.floor(diff / 1000);
+    if (totalDiff <= 0) {
+      totalDiff = 0;
+      if (!fireworksStarted) {
+        fireworksStarted = true;
+        if (interval) clearInterval(interval);
+        FireworksModule.start();
+      }
+    }
+
+    const d = Math.floor(totalDiff / 86400000);
+    const h = Math.floor((totalDiff % 86400000) / 3600000);
+    const m = Math.floor((totalDiff % 3600000) / 60000);
+    const s = Math.floor((totalDiff % 60000) / 1000);
 
     elDays.textContent = String(d).padStart(2, '0');
     elHours.textContent = String(h).padStart(2, '0');
     elMins.textContent = String(m).padStart(2, '0');
     elSecs.textContent = String(s).padStart(2, '0');
 
-    if (diff <= 0 && interval) clearInterval(interval);
+    // Destapar las botellas progresivamente de a una
+    if (d === 0) popBottle(elDays.closest('.potion-bottle'));
+    if (d === 0 && h === 0) popBottle(elHours.closest('.potion-bottle'));
+    if (d === 0 && h === 0 && m === 0) popBottle(elMins.closest('.potion-bottle'));
+    if (totalDiff <= 0) popBottle(elSecs.closest('.potion-bottle'));
+  }
+
+  function popBottle(bottle) {
+    if (!bottle || bottle.classList.contains('exploded')) return;
+    
+    bottle.classList.add('exploded');
+    
+    // Iniciar burbujas que rebalsan
+    const neck = $('.bottle-neck', bottle);
+    setInterval(() => {
+      const bubble = document.createElement('div');
+      bubble.classList.add('overflow-bubble');
+      
+      const size = 3 + Math.random() * 6;
+      const duration = 1 + Math.random() * 0.8;
+      const dx = -30 + Math.random() * 60;
+      
+      bubble.style.width = size + 'px';
+      bubble.style.height = size + 'px';
+      bubble.style.animationDuration = duration + 's';
+      bubble.style.setProperty('--dx', dx + 'px');
+      
+      neck.appendChild(bubble);
+      
+      setTimeout(() => bubble.remove(), duration * 1000);
+    }, 150 + Math.random() * 100);
   }
 
   function start() {
     update();
-    interval = setInterval(update, 1000);
+    if (!fireworksStarted) {
+      interval = setInterval(update, 1000);
+    }
+  }
+
+  return { start };
+})();
+
+/* ═══════════════════════════════════════════════════════════
+   MODULE 2.5 — FIREWORKS
+   ═══════════════════════════════════════════════════════════ */
+const FireworksModule = (() => {
+  let canvas, ctx;
+  let fireworks = [];
+  let particles = [];
+  let animFrame;
+
+  function init() {
+    canvas = document.createElement('canvas');
+    canvas.id = 'fireworks-canvas';
+    canvas.style.position = 'fixed';
+    canvas.style.inset = '0';
+    canvas.style.pointerEvents = 'none';
+    canvas.style.zIndex = '50'; 
+    document.body.appendChild(canvas);
+    ctx = canvas.getContext('2d');
+    
+    resize();
+    window.addEventListener('resize', resize);
+  }
+
+  function resize() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+
+  function createFirework() {
+    const x = canvas.width * 0.1 + Math.random() * (canvas.width * 0.8);
+    const y = canvas.height;
+    const targetY = canvas.height * 0.1 + Math.random() * (canvas.height * 0.4);
+    const speed = 4 + Math.random() * 4;
+    const hue = Math.floor(Math.random() * 360);
+    
+    fireworks.push({ x, y, targetY, speed, hue });
+  }
+
+  function explode(x, y, hue) {
+    const count = 40 + Math.random() * 30;
+    for(let i = 0; i < count; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const speed = Math.random() * 6 + 1;
+      particles.push({
+        x, y,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed,
+        hue: hue + (Math.random() * 30 - 15),
+        brightness: 50 + Math.random() * 50,
+        alpha: 1,
+        decay: 0.015 + Math.random() * 0.03
+      });
+    }
+  }
+
+  function animate() {
+    // Fade existing drawing for trails
+    ctx.globalCompositeOperation = 'destination-out';
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    ctx.globalCompositeOperation = 'source-over';
+
+    for(let i = fireworks.length - 1; i >= 0; i--) {
+      let fw = fireworks[i];
+      fw.y -= fw.speed;
+      
+      ctx.beginPath();
+      ctx.arc(fw.x, fw.y, 2.5, 0, Math.PI * 2);
+      ctx.fillStyle = `hsl(${fw.hue}, 100%, 60%)`;
+      ctx.fill();
+      
+      if(fw.y <= fw.targetY) {
+        explode(fw.x, fw.y, fw.hue);
+        fireworks.splice(i, 1);
+      }
+    }
+    
+    for(let i = particles.length - 1; i >= 0; i--) {
+      let p = particles[i];
+      p.x += p.vx;
+      p.y += p.vy;
+      p.vy += 0.08; // gravity
+      p.alpha -= p.decay;
+      
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, 2, 0, Math.PI * 2);
+      ctx.fillStyle = `hsla(${p.hue}, 100%, ${p.brightness}%, ${p.alpha})`;
+      ctx.fill();
+      
+      if(p.alpha <= 0) particles.splice(i, 1);
+    }
+    
+    animFrame = requestAnimationFrame(animate);
+  }
+
+  function start() {
+    if (canvas) return; // already started
+    init();
+    animate();
+    
+    // Spawn for 8 seconds
+    let sparkInterval = setInterval(createFirework, 400);
+    setTimeout(() => {
+      clearInterval(sparkInterval);
+      // Wait for particles to fade then cleanup
+      setTimeout(() => {
+        cancelAnimationFrame(animFrame);
+        if (canvas) {
+          canvas.remove();
+          canvas = null;
+        }
+      }, 4000);
+    }, 8000);
   }
 
   return { start };
@@ -490,8 +651,12 @@ const ModalsModule = (() => {
   }
 
   function closeModal(modal) {
-    modal.classList.remove('active');
-    document.body.style.overflow = '';
+    modal.classList.add('closing');
+    setTimeout(() => {
+      modal.classList.remove('active');
+      modal.classList.remove('closing');
+      document.body.style.overflow = '';
+    }, 1800);
   }
 
   function init() {
@@ -618,7 +783,7 @@ const TriviaModule = (() => {
       elOptions.appendChild(btn);
     });
 
-    elScore.textContent = `Question ${currentQ + 1} of ${questions.length}`;
+    elScore.textContent = `Pregunta ${currentQ + 1} de ${questions.length}`;
   }
 
   function selectAnswer(index) {
@@ -642,10 +807,10 @@ const TriviaModule = (() => {
 
     if (isCorrect) {
       score++;
-      elFeedback.textContent = '✨ Correct! +10 points';
+      elFeedback.textContent = '✨ Correcto! +10 puntos';
       elFeedback.style.color = '#27ae60';
     } else {
-      elFeedback.textContent = '❌ Wrong! The correct answer was: ' + q.options[q.answer];
+      elFeedback.textContent = '❌ Noo! La respuesta correcta era: ' + q.options[q.answer];
       elFeedback.style.color = '#c0392b';
     }
 
@@ -653,19 +818,19 @@ const TriviaModule = (() => {
   }
 
   function showFinalScore() {
-    elQuestion.textContent = 'Trivia Complete!';
+    elQuestion.textContent = 'Trivia Completada!';
     elOptions.innerHTML = '';
     elFeedback.textContent = '';
     elNext.classList.add('hidden');
 
     const pct = Math.round((score / questions.length) * 100);
     let msg = '';
-    if (pct === 100) msg = '🏆 Outstanding! A true witch/wizard!';
-    else if (pct >= 70) msg = '⚡ Excellent! Dumbledore would be proud!';
-    else if (pct >= 40) msg = '📚 Not bad! Keep studying your spellbooks.';
-    else msg = '🧙 You might need to retake your O.W.L.s!';
+    if (pct === 100) msg = 'Perfecto! Me conoces al 100%!';
+    else if (pct >= 70) msg = 'Excelente! Eres un gran amigo!';
+    else if (pct >= 40) msg = 'No tan mal! Te falta conocerme un poco más';
+    else msg = 'Tenemos que hablar más...';
 
-    elScore.innerHTML = `<strong>${score}/${questions.length}</strong> correct (${pct}%)<br>${msg}`;
+    elScore.innerHTML = `<strong>${score}/${questions.length}</strong> correcto (${pct}%)<br>${msg}`;
 
     // Send trivia results to Google Sheets
     sendTriviaResults();
