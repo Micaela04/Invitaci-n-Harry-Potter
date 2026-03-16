@@ -892,12 +892,209 @@ const TriviaModule = (() => {
 })();
 
 /* ═══════════════════════════════════════════════════════════
+   MODULE 7.5 — PHOTOS UPLOAD
+   ═══════════════════════════════════════════════════════════ */
+const PhotosModule = (() => {
+  const form = $('#photos-form');
+  const input = $('#photos-input');
+  const preview = $('#photos-preview');
+  const status = $('#photos-status');
+  const submitBtn = $('#photos-submit');
+  const fileChosenText = $('#file-chosen-text');
+  
+  // Reemplazar con la URL de tu nuevo Web App de Google Apps Script 
+  // (Este script debe estar configurado para recibir archivos en base64 y guardarlos en Drive)
+  const UPLOAD_URL = 'https://script.google.com/macros/s/AKfycbzUHJCclWbC0qDOnQ6NcxMO-SQ9LWFzsg7YNknfoY0iBNDUhh12yfZMC8XcCGfbtlsx/exec';
+
+  let selectedFiles = [];
+
+  function init() {
+    if (!form || !input) return;
+
+    input.addEventListener('change', (e) => {
+      selectedFiles = Array.from(e.target.files);
+      updatePreview();
+    });
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      if (selectedFiles.length === 0) {
+        setStatus('Por favor, selecciona al menos una foto', 'error');
+        return;
+      }
+      
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Enviando Lechuzas...';
+      setStatus('Procesando y subiendo tus fotos, no cierres esta ventana...', 'info');
+
+      let successCount = 0;
+      let errorCount = 0;
+
+      for (let i = 0; i < selectedFiles.length; i++) {
+        const file = selectedFiles[i];
+        
+        if (file.size > 5 * 1024 * 1024) {
+          errorCount++;
+          continue; // skip large files (>5MB)
+        }
+
+        try {
+          const base64Data = await fileToBase64(file);
+          // Separar la cabecera data:image/jpeg;base64, del contenido
+          const base64Content = base64Data.split(',')[1];
+          const mimeType = file.type;
+          const filename = file.name;
+          
+          await fetch(UPLOAD_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              type: 'photo_upload',
+              filename: filename,
+              mimeType: mimeType,
+              data: base64Content
+            })
+          });
+          
+          successCount++;
+          setStatus(`Subida ${i+1} de ${selectedFiles.length}...`, 'info');
+        } catch (err) {
+          console.error(err);
+          errorCount++;
+        }
+      }
+
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Subir Fotos';
+      
+      if (successCount > 0 && errorCount === 0) {
+        setStatus(`¡Travesura Realizada! ${successCount} foto(s) subida(s) con éxito.`, 'success');
+        form.reset();
+        selectedFiles = [];
+        updatePreview();
+      } else if (successCount > 0 && errorCount > 0) {
+        setStatus(`Subidas ${successCount} fotos. ${errorCount} foto(s) fallaron (tal vez eran muy pesadas).`, 'info');
+        form.reset();
+        selectedFiles = [];
+        updatePreview();
+      } else {
+        setStatus('Error oscuro detectado. No se pudieron subir las fotos. Quizás el Script URL no está configurado.', 'error');
+      }
+    });
+  }
+
+  function fileToBase64(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = error => reject(error);
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function updatePreview() {
+    if (!fileChosenText) return;
+
+    if (selectedFiles.length === 0) {
+      fileChosenText.textContent = 'Ninguna foto seleccionada';
+      if (preview) preview.innerHTML = ''; // Limpiamos si hay algo extra
+    } else if (selectedFiles.length === 1) {
+      fileChosenText.textContent = '1 recuerdo listo para enviar';
+    } else {
+      fileChosenText.textContent = `${selectedFiles.length} recuerdos listos para enviar`;
+    }
+  }
+
+  function setStatus(msg, type) {
+    status.textContent = msg;
+    status.className = 'photos-status'; // reset classes
+    if (type === 'error') status.classList.add('error-text');
+    if (type === 'success') status.classList.add('success-text');
+    if (type === 'info') status.classList.add('info-text');
+  }
+
+  return { init };
+})();
+
+/* ═══════════════════════════════════════════════════════════
    MODULE 8 — RSVP FORM
    ═══════════════════════════════════════════════════════════ */
 const RSVPModule = (() => {
   const form = $('#rsvp-form');
   const successMsg = $('#rsvp-success');
   if (!form) return { init() {} };
+
+  const peopleSelect = $('#rsvp-people');
+  const dietContainer = $('#rsvp-diet-container');
+  const addDietBtn = $('#rsvp-add-diet');
+
+  function updateDietUI() {
+    const peopleCount = parseInt(peopleSelect.value, 10);
+    const dietItems = $$('.diet-item', dietContainer);
+    
+    let anySpecificDiet = false;
+
+    // Automatically remove extra diet fields if people count is reduced
+    if (dietItems.length > peopleCount) {
+      for (let i = dietItems.length - 1; i >= peopleCount; i--) {
+        dietItems[i].remove();
+      }
+    }
+
+    // Refresh NodeList after removal
+    const currentDietItems = $$('.diet-item', dietContainer);
+
+    currentDietItems.forEach((item) => {
+      const select = $('.diet-select', item);
+      const nameInput = $('.diet-name', item);
+      const hasDiet = select.value !== 'Ninguno';
+      
+      if (hasDiet) anySpecificDiet = true;
+
+      // If more than 1 person and they selected a diet, require a name
+      if (peopleCount > 1 && hasDiet) {
+        nameInput.classList.remove('hidden');
+        nameInput.setAttribute('required', 'required');
+      } else {
+        nameInput.classList.add('hidden');
+        nameInput.removeAttribute('required');
+      }
+    });
+
+    // Show "Add another person" if peopleCount > 1, at least one dietary requirement is entered, 
+    // and we haven't reached the max people count
+    if (peopleCount > 1 && anySpecificDiet && currentDietItems.length < peopleCount) {
+      addDietBtn.classList.remove('hidden');
+    } else {
+      addDietBtn.classList.add('hidden');
+    }
+  }
+
+  function getDietValue() {
+    const peopleCount = parseInt(peopleSelect.value, 10);
+    const dietItems = $$('.diet-item', dietContainer);
+
+    let results = [];
+    let allNinguno = true;
+
+    dietItems.forEach((item) => {
+      const diet = $('.diet-select', item).value;
+      const name = $('.diet-name', item).value.trim() || 'Sin nombre';
+
+      if (diet !== 'Ninguno') {
+        allNinguno = false;
+        if (peopleCount === 1) {
+          results.push(diet); // Solo la dieta si es una persona
+        } else {
+          results.push(`{${name}, ${diet}}`); // Formato {Nombre, Dieta}
+        }
+      }
+    });
+
+    return allNinguno ? 'Ninguno' : results.join(', ');
+  }
 
   function validate() {
     let valid = true;
@@ -915,18 +1112,44 @@ const RSVPModule = (() => {
   }
 
   function init() {
+    if (peopleSelect) peopleSelect.addEventListener('change', updateDietUI);
+    if (dietContainer) dietContainer.addEventListener('change', updateDietUI);
+
+    if (addDietBtn) {
+      addDietBtn.addEventListener('click', () => {
+        const dietItems = $$('.diet-item', dietContainer);
+        const template = dietItems[0].cloneNode(true);
+        
+        // Reset values in cloned node
+        $('.diet-select', template).value = 'Ninguno';
+        
+        const nameInput = $('.diet-name', template);
+        nameInput.value = '';
+        nameInput.classList.add('hidden');
+        nameInput.removeAttribute('required');
+
+        // Optional: you could add an 'X' button here if you wanted allow removing specific lines, 
+        // but for now they can just set it back to "Ninguno".
+
+        dietContainer.appendChild(template);
+        updateDietUI();
+      });
+    }
+
     form.addEventListener('submit', (e) => {
       e.preventDefault();
 
       if (!validate()) return;
 
       // Collect form data (ready to send to a backend / Google Sheets)
+      const rawPhone = form.phone ? form.phone.value : '';
       const data = {
         people: form.people.value,
         firstName: form.firstName.value.trim(),
         lastName: form.lastName.value.trim(),
+        phone: rawPhone.replace(/\s+/g, ''),
         attendance: form.attendance.value,
-        diet: form.diet.value,
+        diet: getDietValue(),
         song: form.song.value.trim(),
         message: form.message.value.trim(),
         timestamp: new Date().toISOString(),
@@ -936,7 +1159,7 @@ const RSVPModule = (() => {
        * Google Apps Script web app URL.
        * Deploy the Apps Script from your Google Sheet and paste the URL here.
        */
-      const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzcNy7RnPQNGcbgK6NDMvZ7tLS4RYcZODowOvMOaAcLgsb2Q-1Vlrp1aGmJcxldgTfU/exec';
+      const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwNch6a7a0KVZIZFzkVGcDMGIK6P9HbTzqNFFMpT7yvc4XMh-PPcqrcOT6l47RrKtp9/exec';
 
       fetch(APPS_SCRIPT_URL, {
         method: 'POST',
@@ -946,17 +1169,18 @@ const RSVPModule = (() => {
           type: 'rsvp',
           firstName: data.firstName,
           lastName: data.lastName,
+          phone: data.phone,
           people: data.people,
           attendance: data.attendance,
           diet: data.diet,
           song: data.song,
           message: data.message,
         }),
+      }).then(() => {
+        // Show success message
+        form.style.display = 'none';
+        successMsg.classList.remove('hidden');
       });
-
-      // Show success message
-      form.style.display = 'none';
-      successMsg.classList.remove('hidden');
     });
   }
 
@@ -1058,6 +1282,7 @@ document.addEventListener('DOMContentLoaded', () => {
   /* Initialise non-visual modules immediately */
   ModalsModule.init();
   RSVPModule.init();
+  PhotosModule.init();
   MusicModule.init();
 
   /*

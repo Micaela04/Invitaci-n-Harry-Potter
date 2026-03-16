@@ -1718,7 +1718,6 @@ footer img {
   font-size: 0.85rem;
   font-style: italic;
   color: var(--ink-faded);
-  margin-top: var(--space-md) !important;
 }
 
 .modal-link {
@@ -1746,6 +1745,94 @@ footer img {
   background: rgba(44, 24, 16, 0.05);
   border-radius: 4px;
 }
+
+/* ─── Fotos ─── */
+.photos-form {
+  display: flex;
+  flex-direction: column;
+  margin-top: var(--space-md);
+  width: 100%;
+}
+.photos-preview {
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  color: var(--ink);
+  text-align: center;
+}
+.photos-status {
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  text-align: center;
+  min-height: 1.5rem;
+  margin-top: var(--space-sm);
+}
+.error-text {
+  color: #c0392b;
+}
+.success-text {
+  color: #27ae60;
+}
+.info-text {
+  color: #2980b9;
+}
+
+/* --- Contenedor general --- */
+.file-upload-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-sm);
+  margin-top: var(--space-md);
+  width: 100%;
+}
+
+/* --- El truco: Ocultar el input por defecto --- */
+.hidden-file-input {
+  /* No usamos display: none para que el navegador siga validando el "required" */
+  width: 0.1px;
+  height: 0.1px;
+  opacity: 0;
+  overflow: hidden;
+  position: absolute;
+  z-index: -1;
+}
+
+/* --- El nuevo botón mágico --- */
+.custom-file-btn {
+  display: inline-block;
+  width: 100%;
+  padding: 10px var(--space-md);
+  background: linear-gradient(135deg, #d4af37, #aa7c11); /* Dorado brillante */
+  color: #fff;
+  font-family: var(--font-heading);
+  font-size: 1.1rem;
+  font-weight: 600;
+  text-align: center;
+  border: 2px solid #8c660d;
+  border-radius: 4px;
+  cursor: pointer;
+  box-shadow: 0 4px 6px rgba(20, 10, 5, 0.3);
+  transition: all 0.3s ease;
+  box-sizing: border-box;
+}
+
+.custom-file-btn:hover {
+  background: linear-gradient(135deg, #e5c158, #c19116);
+  box-shadow: 0 6px 12px rgba(212, 168, 67, 0.4);
+}
+
+.custom-file-btn:active {
+  transform: translateY(1px);
+}
+
+/* --- El texto de "Ninguna foto seleccionada" --- */
+.file-chosen-text {
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  color: var(--ink-faded, #5a3814);
+  font-style: italic;
+}
+
 
 /* ─── Trivia ─── */
 .trivia-name-form {
@@ -1895,6 +1982,12 @@ footer img {
   color: #27ae60;
   padding: var(--space-md);
   animation: fadeInLetter 0.5s ease;
+}
+
+.diet-item {
+  display: flex; 
+  gap: 8px; 
+  margin-bottom: 8px;
 }
 
 /* ══════════════════════════════════════════════════════════

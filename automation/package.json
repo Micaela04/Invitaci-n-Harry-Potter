@@ -1,0 +1,15 @@
+{
+  "name": "automation",
+  "version": "1.0.0",
+  "description": "WhatsApp remminder automation",
+  "main": "send-reminders.js",
+  "scripts": {
+    "start": "node send-reminders.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.0.3",
+    "node-cron": "^3.0.2",
+    "qrcode-terminal": "^0.12.0",
+    "whatsapp-web.js": "^1.19.4"
+  }
+}

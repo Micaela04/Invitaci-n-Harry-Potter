@@ -314,7 +314,7 @@
 
   <!-- Fotos Modal -->
   <div class="modal-overlay" id="modal-photos" role="dialog" aria-modal="true" aria-label="Upload photos">
-    <div class="modal-fold-wrapper">
+    <div class="modal-fold-wrapper modal-fold-wrapper--wide">
       <div class="modal-fold-container">
         <div class="fold-panel panel-tr"><div class="modal-content-inner"></div></div>
         <div class="fold-panel panel-tl"><div class="modal-content-inner"></div></div>
@@ -327,8 +327,25 @@
         <div class="modal-body">
           <p>Compartí tus momentos mágicos!</p>
           <p>Subí las fotos de la fiesta:</p>
-          <a href="https://drive.google.com/drive/folders/1g8oWJe3XL7G8JGrUeAozsm7bXIe9gHGl?usp=sharing" target="_blank" rel="noopener" class="modal-link">Abrir Google Drive</a>
-          <p class="modal-note">Las fotos aparecerán en el álbum compartido</p>
+          <form id="photos-form" class="photos-form" novalidate>
+            <label class="form-label" for="photos-input">Selecciona tus fotos (No videos)</label>
+            <div class="file-upload-container">
+              <input type="file" id="photos-input" name="photos" class="hidden-file-input" accept="image/*" multiple required />
+              
+              <label for="photos-input" class="custom-file-btn">
+                Elegir recuerdos...
+              </label>
+              
+              <span id="file-chosen-text" class="file-chosen-text">Ninguna foto seleccionada</span>
+            </div>
+            <div id="photos-preview" class="photos-preview"></div>
+            
+            <button type="submit" class="magic-btn magic-btn--primary magic-btn--full" id="photos-submit">
+              Subir Fotos
+            </button>
+            <p id="photos-status" class="photos-status"></p>
+          </form>
+          <p class="modal-note">Las fotos serán enviadas por lechuza a nuestra bóveda segura.</p>
         </div>
       </div>
     </div>
@@ -398,22 +415,31 @@
             <label class="form-label" for="rsvp-lastname">Apellido <span class="required">*</span></label>
             <input type="text" id="rsvp-lastname" name="lastName" class="form-input" required placeholder="Potter" />
 
+            <label class="form-label" for="rsvp-phone">Teléfono (WhatsApp) <span class="required">*</span></label>
+            <input type="tel" id="rsvp-phone" name="phone" class="form-input" required placeholder="1123456789" />
+
             <label class="form-label" for="rsvp-attendance">¿Confirmas tu asistencia? <span class="required">*</span></label>
             <select id="rsvp-attendance" name="attendance" class="form-select" required>
               <option value="Si">Sii, ahí estaré</option>
               <option value="No">No, no podré asistir</option>
             </select>
 
-            <label class="form-label" for="rsvp-diet">Requerimientos en la alimentación</label>
-            <select id="rsvp-diet" name="diet" class="form-select">
-              <option value="Ninguno">Ninguno</option>
-              <option value="Vegano">Vegano</option>
-              <option value="Vegetariano">Vegetariano</option>
-              <option value="Celíaco">Celíaco</option>
-              <option value="Diabético">Diabético</option>
-              <option value="Hipertenso">Hipertenso</option>
-              <option value="Intolerante a la lactosa">Intolerante a la lactosa</option>
-            </select>
+            <label class="form-label">Requerimientos en la alimentación</label>
+            <div id="rsvp-diet-container">
+              <div class="diet-item">
+                <select class="form-select diet-select">
+                  <option value="Ninguno">Ninguno</option>
+                  <option value="Vegano">Vegano</option>
+                  <option value="Vegetariano">Vegetariano</option>
+                  <option value="Celíaco">Celíaco</option>
+                  <option value="Diabético">Diabético</option>
+                  <option value="Hipertenso">Hipertenso</option>
+                  <option value="Intolerante a la lactosa">Intolerante a la lactosa</option>
+                </select>
+                <input type="text" class="form-input diet-name hidden" placeholder="Nombre (Ej: Ana)" />
+              </div>
+            </div>
+            <button type="button" id="rsvp-add-diet" class="magic-btn magic-btn--small hidden" style="margin-bottom: var(--space-md);">+ Añadir a otra persona</button>
 
             <label class="form-label" for="rsvp-song">¿Que canción no puede faltar?</label>
             <input type="text" id="rsvp-song" name="song" class="form-input" placeholder="El meneaito" />
@@ -425,10 +451,10 @@
               Enviar Buho
             </button>
 
-            <p id="rsvp-success" class="rsvp-success hidden">
-              ¡Tu buho ha sido enviado! ¡Nos vemos en la celebración!
-            </p>
           </form>
+          <p id="rsvp-success" class="rsvp-success hidden">
+            ¡Tu buho ha sido enviado! ¡Nos vemos en la celebración!
+          </p>
         </div>
       </div>
     </div>
