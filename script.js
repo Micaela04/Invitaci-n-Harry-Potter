@@ -1,4 +1,4 @@
-/* ══════════════════════════════════════════════════════════
+﻿/* ══════════════════════════════════════════════════════════
    HARRY POTTER MAGICAL INVITATION — JAVASCRIPT
    Modular vanilla JS — no frameworks
    ══════════════════════════════════════════════════════════ */
@@ -10,7 +10,7 @@
    ───────────────────────────────────────────── */
 const CONFIG = {
   /* Event date for the countdown (YYYY-MM-DDTHH:MM:SS) */
-  eventDate: '2026-03-15T01:40:00',
+  eventDate: '2026-03-20T01:40:00',
 
   /* Number of envelopes to spawn */
   envelopeCount: 10,
@@ -1273,6 +1273,318 @@ const RevealModule = (() => {
 })();
 
 /* ═══════════════════════════════════════════════════════════
+   MODULE 11 — CONOCE TU MESA (SECRET AUDIO)
+   ═══════════════════════════════════════════════════════════ */
+const SecretAudioModule = (() => {
+  const conoceMesaSection = $('#conoce-mesa-section');
+  const fingerprintBtn = $('#fingerprint-btn');
+  const fingerprintProgress = $('.fingerprint-wrapper');
+  const introDiv = $('#conoce-mesa-intro');
+  const resultDiv = $('#conoce-mesa-result');
+  const statusEl = $('#conoce-mesa-status');
+  const hatGif = $('#hat-gif-img');
+
+  let holdTimer = null;
+  let progress = 0;
+  let holdInterval = null;
+  let audioPlayer = null;
+
+  const EXPECTED_URL = 'https://script.google.com/macros/s/AKfycbwNch6a7a0KVZIZFzkVGcDMGIK6P9HbTzqNFFMpT7yvc4XMh-PPcqrcOT6l47RrKtp9/exec';
+
+  function checkVisibility() {
+    const params = new URLSearchParams(window.location.search);
+    const inv = params.get('inv');
+    const id = params.get('id');
+
+    const now = Date.now();
+    const target = new Date(CONFIG.eventDate).getTime();
+    const totalDiff = target - now;
+
+    // Show if inv and id are present in URL, and <= 7 days left
+    if (inv && id && totalDiff <= (7 * 86400000)) {
+      conoceMesaSection.classList.remove('hidden');
+    }
+  }
+
+  function spawnParticle() {
+    if (!fingerprintProgress) return;
+    const particle = document.createElement('div');
+    particle.className = 'fingerprint-particle';
+    
+    // Random position around center
+    const angle = Math.random() * Math.PI * 2;
+    const distance = 40 + Math.random() * 20; // outside the button
+    const startX = 50 + Math.cos(angle) * 30; // Center is 50x50 inside wrapper
+    const startY = 50 + Math.sin(angle) * 30;
+    
+    // Target position (floating up and out)
+    const tx = (Math.cos(angle) * distance) + 'px';
+    const ty = (Math.sin(angle) * distance - 30) + 'px'; // Move up slightly
+    
+    particle.style.left = startX + 'px';
+    particle.style.top = startY + 'px';
+    particle.style.setProperty('--tx', tx);
+    particle.style.setProperty('--ty', ty);
+    
+    fingerprintProgress.appendChild(particle);
+    
+    setTimeout(() => {
+      particle.remove();
+    }, 800);
+  }
+
+  function startHold(e) {
+    if (e.type !== 'mousedown' && e.type !== 'touchstart') return;
+    progress = 0;
+    
+    // Clear previous
+    if (holdInterval) clearInterval(holdInterval);
+    
+    holdInterval = setInterval(() => {
+      progress += 2;
+      if (fingerprintProgress) fingerprintProgress.style.setProperty('--progress', progress + '%');
+      
+      // Spawn magic particles
+      if (Math.random() > 0.5) spawnParticle();
+      
+      if (progress >= 100) {
+        clearInterval(holdInterval);
+        triggerMagic();
+      }
+    }, 30);
+  }
+
+  function stopHold() {
+    clearInterval(holdInterval);
+    if (progress < 100) {
+      progress = 0;
+      if (fingerprintProgress) fingerprintProgress.style.setProperty('--progress', '0%');
+    }
+  }
+
+  async function triggerMagic() {
+    introDiv.classList.add('hidden');
+    resultDiv.classList.remove('hidden');
+    statusEl.textContent = 'Consultando al sombrero...';
+
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get('id');
+
+    let audioName = params.get('inv') || 'defecto';
+    let numeroMesa = null;
+
+    try {
+      // Intentamos traer el audio y la mesa del id
+      const resp = await fetch(`${EXPECTED_URL}?action=getAudio&id=${id}`);
+      const data = await resp.json();
+      
+      if (data) {
+        if (data.audioName) audioName = data.audioName;
+        
+        // Extraemos el número de la mesa
+        if (data.mesa) {
+           const match = String(data.mesa).match(/\d+/);
+           if (match) numeroMesa = match[0];
+           else numeroMesa = data.mesa;
+        }
+      }
+    } catch (e) {
+      // Fallback
+    }
+
+    playAudio(audioName, numeroMesa);
+  }
+
+  function playAudio(name, numeroMesa) {
+    const audioSrc = `audios/${name}.mp3`;
+    if (audioPlayer) audioPlayer.pause();
+    
+    audioPlayer = new Audio(audioSrc);
+    
+    // Listeners para iniciar animación cuando empiece el audio
+    audioPlayer.addEventListener('play', () => {
+       if (hatGif) hatGif.classList.remove('hidden');
+       statusEl.textContent = 'Encontrando tu mesa...';
+    });
+
+    audioPlayer.play().catch(e => {
+        statusEl.innerHTML += `<br><button class="magic-btn magic-btn--small" onclick="const a = this.nextElementSibling; a.play(); this.remove();">Magia revelada (toca para escuchar)</button><audio controls src="${audioSrc}" style="display:none"></audio>`;
+    });
+
+    audioPlayer.onended = () => {
+      if (hatGif) hatGif.classList.add('hidden');
+      statusEl.textContent = "Travesura realizada. ¡Mirá el mapa!";
+      
+      // Llamar al mapa
+      MapAnimationModule.revelarMesa(numeroMesa || 1); // default mesa 1
+    };
+  }
+
+  function init() {
+    if (!conoceMesaSection) return;
+    checkVisibility();
+    
+    if (fingerprintBtn) {
+      ['mousedown', 'touchstart'].forEach(type => fingerprintBtn.addEventListener(type, startHold, {passive: true}));
+      ['mouseup', 'mouseleave', 'touchend', 'touchcancel'].forEach(type => fingerprintBtn.addEventListener(type, stopHold, {passive: true}));
+    }
+  }
+
+  return { init, checkVisibility };
+})();
+
+/* ═══════════════════════════════════════════════════════════
+   MODULE 12 — MAPA Y HUELLAS (MAP ANIMATION)
+   ═══════════════════════════════════════════════════════════ */
+const MapAnimationModule = (() => {
+  const mapContainer = $('#conoce-mesa-mapa');
+  const pathsContainer = $('#map-paths-container');
+  
+  function createFootprint(x, y, isRight, angle) {
+    const use = document.createElementNS('http://www.w3.org/2000/svg', 'use');
+    use.setAttribute('href', '#huella-original');
+    use.setAttribute('class', 'huella-merodeador');
+    
+    // El SVG original apunta al Eje X (derecha). 
+    // Para que parezcan patas alternadas usamos scaleY(-1) para el pie izquierdo.
+    const scaleY = isRight ? -1 : 1;
+    use.setAttribute('transform', `translate(${x}, ${y}) rotate(${angle}) scale(1, ${scaleY})`);
+    
+    return use;
+  }
+
+  function getPathSegments(tableX, tableY) {
+    let pts = [];
+    let startX = 200;
+    let startY = 440;
+    
+    let isLeft = tableX < 200;
+    let turnRadius = 25;
+    let turnStartY = tableY + turnRadius;
+    if (turnStartY > startY) turnStartY = startY; 
+    
+    pts.push({x: startX, y: startY});
+    pts.push({x: startX, y: turnStartY});
+    
+    // Curva suave
+    let curveSteps = 5;
+    for(let i=1; i<=curveSteps; i++) {
+        let t = i / curveSteps; 
+        let a = t * (Math.PI / 2); 
+        // Si va a la izq, el centro del giro está en la izquierda. Si va a la der, en la derecha.
+        let curX = startX + (isLeft ? -turnRadius * (1 - Math.cos(a)) : turnRadius * (1 - Math.cos(a)));
+        let curY = turnStartY - turnRadius * Math.sin(a);
+        pts.push({x: curX, y: curY});
+    }
+    
+    // Segmento horizontal hasta la mesa
+    let endX = tableX + (isLeft ? 45 : -45); 
+    pts.push({x: endX, y: tableY});
+    
+    return pts;
+  }
+  
+  function generarHuellas(pts) {
+    let footprints = [];
+    let stepLength = 17; // Distancia exacta misma de styles.css
+    let leftOver = 0;
+    let isRight = false; // Empezamos con un pie
+    
+    for (let i = 0; i < pts.length - 1; i++) {
+      let p1 = pts[i];
+      let p2 = pts[i+1];
+      let dx = p2.x - p1.x;
+      let dy = p2.y - p1.y;
+      let dist = Math.hypot(dx, dy);
+      if (dist === 0) continue;
+      
+      let dirX = dx / dist;
+      let dirY = dy / dist;
+      let angle = Math.atan2(dy, dx) * 180 / Math.PI;
+      
+      let currentD = leftOver;
+      while (currentD < dist) {
+        let cx = p1.x + dirX * currentD;
+        let cy = p1.y + dirY * currentD;
+        
+        let perpX = -dirY;
+        let perpY = dirX;
+        
+        let sideOffset = isRight ? 6 : -6;
+        
+        footprints.push({
+          x: cx + perpX * sideOffset,
+          y: cy + perpY * sideOffset,
+          isRight: isRight,
+          angle: angle
+        });
+        
+        isRight = !isRight;
+        currentD += stepLength;
+      }
+      leftOver = currentD - dist;
+    }
+    return footprints;
+  }
+
+  function revelarMesa(numeroMesa) {
+    if (!mapContainer || !pathsContainer) return;
+    mapContainer.classList.remove('hidden');
+    pathsContainer.innerHTML = '';
+    
+    $$('.mesa-salon').forEach(m => m.classList.remove('mesa-asignada'));
+    const target = $(`#mesa-${numeroMesa}`);
+    if (!target) return;
+    
+    target.classList.add('mesa-asignada');
+    
+    const cx = parseFloat(target.getAttribute('cx'));
+    const cy = parseFloat(target.getAttribute('cy'));
+    
+    const pts = getPathSegments(cx, cy);
+    const footprints = generarHuellas(pts);
+    
+    footprints.forEach((fp, i) => {
+      const el = createFootprint(fp.x, fp.y, fp.isRight, fp.angle);
+      pathsContainer.appendChild(el);
+      
+      setTimeout(() => {
+        el.classList.add('visible');
+      }, i * 300);
+    });
+  }
+
+  return { revelarMesa };
+})();
+
+/* ═══════════════════════════════════════════════════════════
+   MODULE 13 — REGALOS (COPY ALIAS)
+   ═══════════════════════════════════════════════════════════ */
+const GiftsModule = (() => {
+  function init() {
+    const copyBtn = $('#copy-alias-btn');
+    const aliasText = $('#alias-text');
+    const copyStatus = $('#copy-status');
+
+    if (!copyBtn || !aliasText || !copyStatus) return;
+
+    copyBtn.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(aliasText.textContent.trim());
+        copyStatus.classList.remove('hidden');
+        setTimeout(() => {
+          copyStatus.classList.add('hidden');
+        }, 2000);
+      } catch (err) {
+        console.error('Error al copiar el alias', err);
+      }
+    });
+  }
+
+  return { init };
+})();
+
+/* ═══════════════════════════════════════════════════════════
    INITIALISATION
    ═══════════════════════════════════════════════════════════ */
 document.addEventListener('DOMContentLoaded', () => {
@@ -1284,6 +1596,8 @@ document.addEventListener('DOMContentLoaded', () => {
   RSVPModule.init();
   PhotosModule.init();
   MusicModule.init();
+  if (typeof SecretAudioModule !== 'undefined') SecretAudioModule.init();
+  if (typeof GiftsModule !== 'undefined') GiftsModule.init();
 
   /*
    * The following modules are started AFTER the intro

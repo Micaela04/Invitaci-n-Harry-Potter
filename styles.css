@@ -1241,7 +1241,7 @@ body::before {
   position: absolute;
   inset: -2px;
   border-radius: 8px;
-  background: linear-gradient(45deg, var(--gold), var(--magic-purple), var(--gold));
+  background: linear-gradient(45deg, var(--gold), var(--gold-glow), var(--gold));
   opacity: 0;
   z-index: -1;
   transition: opacity 0.3s ease;
@@ -1738,12 +1738,32 @@ footer img {
   box-shadow: var(--glow-gold);
 }
 
-.gift-alias {
+.modal-body .gift-alias {
   font-family: var(--font-accent);
   font-size: 1.1rem;
   padding: var(--space-sm);
   background: rgba(44, 24, 16, 0.05);
   border-radius: 4px;
+  margin-bottom: 0px;
+}
+
+/* --- Botón Copiar Alias --- */
+.gift-alias-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin: 10px 0;
+}
+.copy-alias-btn {
+  padding: 5px 10px;
+  font-size: 0.9rem;
+}
+.copy-alias-btn:hover {
+  transform: translateY(0);
+}
+.copy-status {
+  transition: opacity 0.3s ease;
 }
 
 /* ─── Fotos ─── */
@@ -2152,3 +2172,120 @@ footer img {
     transition-duration: 0.01ms !important;
   }
 }
+/* --- Conocé tu mesa --- */
+.conoce-mesa-section {
+  text-align: center;
+  margin: 1rem 0;
+  display: flex;
+  justify-content: center;
+}
+.btn-conoce-mesa {
+  background: linear-gradient(135deg, #FFD700, #DAA520, #FFD700);
+  color: #1a1a1a;
+  box-shadow: 0 0 15px #FFD700, inset 0 0 10px rgba(255,255,255,0.8);
+  border: 2px solid #fff;
+  font-weight: bold;
+  font-size: 1.25rem;
+  padding: 1rem 2rem;
+  animation: pulse-glow 1.5s infinite alternate;
+}
+@keyframes pulse-glow {
+  0% { box-shadow: 0 0 10px #FFD700, 0 0 5px #fff; transform: scale(1); }
+  100% { box-shadow: 0 0 25px #FFD700, 0 0 15px #fff; transform: scale(1.05); }
+}
+
+.fingerprint-wrapper {
+  position: relative;
+  width: 100px;
+  height: 100px;
+  margin: 2rem auto;
+  border-radius: 50%;
+  border: 3px solid rgba(218,165,32,0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.fingerprint-btn {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #DAA520, #8B6508);
+  border: 1px solid #FFD700;
+  cursor: pointer;
+  outline: none;
+  z-index: 2;
+  transition: transform 0.2s;
+}
+.fingerprint-btn:active {
+  transform: scale(0.95);
+}
+.fingerprint-progress {
+  position: absolute;
+  top: -3px; left: -3px; right: -3px; bottom: -3px;
+  border-radius: 50%;
+  background: conic-gradient(#FFD700 var(--progress, 0%), transparent 0);
+  z-index: 1;
+  pointer-events: none;
+}
+.hat-gif {
+  max-width: 120px;
+  margin: 1rem auto;
+  display: block;
+}
+/* --- Mapa del Sal�n --- */
+.salon-mapa {
+  background: rgba(244, 235, 216, 0.1);
+  border: 2px solid #DAA520;
+  border-radius: 10px;
+  margin-top: 1rem;
+}
+.mesa-salon {
+  fill: #4a3b2c;
+  stroke: #DAA520;
+  stroke-width: 2px;
+  transition: all 0.5s ease;
+}
+.mesa-label {
+  fill: #fff;
+  font-family: 'Cinzel', serif;
+  font-size: 14px;
+  font-weight: bold;
+  text-anchor: middle;
+  pointer-events: none;
+}
+.mesa-asignada {
+  fill: #DAA520;
+  stroke: #FFF;
+  stroke-width: 3px;
+  filter: drop-shadow(0 0 10px #FFD700);
+  animation: pulse-glow-mesa 1.5s infinite alternate;
+}
+@keyframes pulse-glow-mesa {
+  0% { filter: drop-shadow(0 0 5px #FFD700); }
+  100% { filter: drop-shadow(0 0 20px #FFD700); }
+}
+.huella-merodeador {
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.huella-merodeador.visible {
+  opacity: 0.8;
+}
+
+/* Fingerprint Particles */
+.fingerprint-particle {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  background: #FFD700;
+  box-shadow: 0 0 5px #FFD700;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 10;
+  animation: fp-float-up 0.8s ease-out forwards;
+}
+@keyframes fp-float-up {
+  0% { opacity: 1; transform: translate(0, 0) scale(1); }
+  100% { opacity: 0; transform: translate(var(--tx), var(--ty)) scale(0); }
+}
+
