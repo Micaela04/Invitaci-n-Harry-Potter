@@ -704,44 +704,79 @@ const ModalsModule = (() => {
 const TriviaModule = (() => {
   const questions = [
     {
-      q: 'What is the name of Harry Potter\'s owl?',
-      options: ['Errol', 'Hedwig', 'Pigwidgeon', 'Scabbers'],
-      answer: 1,
+      q: '¿Cuál es el color favorito de Luchi?',
+      options: ['Negro', 'Azul', 'Violeta', 'Rojo'],
+      answer: 2,
     },
     {
-      q: 'Which house does the Sorting Hat place Harry in?',
-      options: ['Ravenclaw', 'Hufflepuff', 'Slytherin', 'Gryffindor'],
+      q: '¿Cuál es la comida favorita de Luchi?',
+      options: ['Tarta de jamón y queso', 'Pizza', 'Milanesa con puré', 'Pastel de papa'],
+      answer: 0,
+    },
+    {
+      q: '¿Cuál es la película favorita de Luchi?',
+      options: ['Avatar', 'Star Wars', 'Harry Potter', 'El señor de los anillos'],
+      answer: 2,
+    },
+    {
+      q: '¿Cuál es la banda favorita de Luchi?',
+      options: ['Marama', 'Soda stereo', 'Tan bionica', 'Morat'],
       answer: 3,
     },
     {
-      q: 'What is the core of Harry\'s wand?',
-      options: ['Dragon heartstring', 'Unicorn tail hair', 'Phoenix feather', 'Thestral tail'],
-      answer: 2,
-    },
-    {
-      q: 'What spell disarms an opponent?',
-      options: ['Stupefy', 'Expelliarmus', 'Petrificus Totalus', 'Obliviate'],
+      q: '¿Cuál es la bebida favorita de Luchi?',
+      options: ['Pepsi', 'Fanta', '7up', 'Jugo'],
       answer: 1,
     },
     {
-      q: 'What position does Harry play in Quidditch?',
-      options: ['Keeper', 'Chaser', 'Beater', 'Seeker'],
+      q: '¿Cuál es la materia favorita de Luchi?',
+      options: ['Lengua', 'Informática', 'Física', 'Matemática'],
+      answer: 2,
+    },
+    {
+      q: '¿Cuál es el pasatiempo de Luchi?',
+      options: ['Dormir', 'Escribir', 'Manualidades', 'Dibujar'],
       answer: 3,
     },
     {
-      q: 'Who is the Half-Blood Prince?',
-      options: ['Draco Malfoy', 'Tom Riddle', 'Severus Snape', 'Albus Dumbledore'],
+      q: '¿A dónde le gustaría viajar a Luchi?',
+      options: ['España', 'Italia', 'Francia', 'Estados Unidos'],
+      answer: 0,
+    },
+    {
+      q: '¿De qué equipo es hincha Luchi?',
+      options: ['Boca', 'River', 'San lorenzo', 'Vélez'],
+      answer: 0,
+    },
+    {
+      q: '¿Cuál es la estación favorita del año de Luchi?',
+      options: ['Verano', 'Otoño', 'Invierno', 'Primavera'],
+      answer: 1,
+    },
+    {
+      q: '¿Cuál es la flor favorita de Luchi?',
+      options: ['Tulipanes', 'Rosas', 'Dalias', 'Girasoles'],
       answer: 2,
     },
     {
-      q: 'What creature guards the Philosopher\'s Stone?',
-      options: ['A Dragon', 'A Basilisk', 'A three-headed dog', 'A Sphinx'],
-      answer: 2,
+      q: '¿Cuál es el signo zodiacal de Luchi?',
+      options: ['Aries', 'Cáncer', 'Tauro', 'Géminis'],
+      answer: 3,
     },
     {
-      q: 'What is the name of the wizarding bank?',
-      options: ['Ollivanders', 'Flourish & Blotts', 'Gringotts', 'The Leaky Cauldron'],
-      answer: 2,
+      q: '¿Cuál es el animal favorito de Luchi?',
+      options: ['Perro', 'Gato', 'Conejo', 'Tortuga'],
+      answer: 1,
+    },
+    {
+      q: '¿Cuál es el género favorito de películas de Luchi?',
+      options: ['Romance', 'Terror', 'Ciencia ficción', 'Comedia'],
+      answer: 0,
+    },
+    {
+      q: '¿Cuál es la fruta favorita de Luchi?',
+      options: ['Manzana', 'Banana', 'Naranja', 'Frutilla'],
+      answer: 3,
     },
   ];
 
@@ -825,10 +860,10 @@ const TriviaModule = (() => {
 
     const pct = Math.round((score / questions.length) * 100);
     let msg = '';
-    if (pct === 100) msg = 'Perfecto! Me conoces al 100%!';
-    else if (pct >= 70) msg = 'Excelente! Eres un gran amigo!';
-    else if (pct >= 40) msg = 'No tan mal! Te falta conocerme un poco más';
-    else msg = 'Tenemos que hablar más...';
+    if (pct === 100) msg = '¡Extraordinario! Ni el Mapa del Merodeador me conoce tan bien como tú';
+    else if (pct >= 70) msg = '¡Supera las Expectativas! Eres un gran amigo, casi como un miembro del Ejército de Dumbledore';
+    else if (pct >= 40) msg = '¡Aceptable! Un poco más de poción de memoria y me conocerás a la perfección';
+    else msg = '¡Calificación: T de Trol! Tenemos que hablar más... ¿Nos vemos en las Tres Escobas?';
 
     elScore.innerHTML = `<strong>${score}/${questions.length}</strong> correcto (${pct}%)<br>${msg}`;
 
