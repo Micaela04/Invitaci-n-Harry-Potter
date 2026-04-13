@@ -10,7 +10,7 @@
    ───────────────────────────────────────────── */
 const CONFIG = {
   /* Event date for the countdown (YYYY-MM-DDTHH:MM:SS) */
-  eventDate: '2026-03-20T01:40:00',
+  eventDate: '2026-06-06T21:30:00',
 
   /* Number of envelopes to spawn */
   envelopeCount: 10,
@@ -129,7 +129,7 @@ const IntroModule = (() => {
     tapText.classList.add('hidden');
     env.classList.add('opened');
 
-    await wait(700);
+    await wait(900);
 
     // Fade envelope out
     env.classList.add('fade-away');
@@ -730,7 +730,7 @@ const TriviaModule = (() => {
     },
     {
       q: '¿Cuál es la materia favorita de Luchi?',
-      options: ['Lengua', 'Informática', 'Física', 'Matemática'],
+      options: ['Lengua', 'Informática', 'Matemática', 'Física'],
       answer: 2,
     },
     {
@@ -842,10 +842,10 @@ const TriviaModule = (() => {
 
     if (isCorrect) {
       score++;
-      elFeedback.textContent = '✨ Correcto! +10 puntos';
+      elFeedback.textContent = '🏆 ¡10 puntos para Gryffindor!';
       elFeedback.style.color = '#27ae60';
     } else {
-      elFeedback.textContent = '❌ Noo! La respuesta correcta era: ' + q.options[q.answer];
+      elFeedback.textContent = '📜 ¡Ni siquiera Hermione fallaría esa! Era: ' + q.options[q.answer];
       elFeedback.style.color = '#c0392b';
     }
 
