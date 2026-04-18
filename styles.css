@@ -1303,6 +1303,7 @@ body::before {
   z-index: 2;
   text-align: center;
   padding: var(--space-2xl) var(--space-lg) var(--space-xl);
+  padding-bottom: 0px;
   font-family: var(--font-accent);
   color: var(--ink-faded);
 }
@@ -1321,6 +1322,37 @@ body::before {
 footer img {
   width: 100px;
   height: 100px;
+}
+
+.footer-credit {
+  margin-top: 40px;
+  font-size: 0.85rem;
+  opacity: 0.8;
+  font-family: var(--font-accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  letter-spacing: 0.5px;
+}
+
+.footer-credit-link {
+  color: inherit;
+  text-decoration: none;
+  display: flex;
+  align-items: flex-start;
+  gap: 4px;
+  opacity: 0.8;
+  transition: opacity 0.3s;
+}
+
+.footer-credit-link:hover {
+  opacity: 1;
+}
+
+.footer-credit-icon {
+  width: 30px !important;
+  height: fit-content !important;
 }
 
 /* ══════════════════════════════════════════════════════════
