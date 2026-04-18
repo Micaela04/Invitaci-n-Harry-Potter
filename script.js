@@ -99,7 +99,6 @@ const IntroModule = (() => {
   /** Handle envelope selection */
   async function selectEnvelope(env) {
     markInteraction();
-    MusicModule.tryAutoplay();
 
     // Prevent double-taps
     if (env.classList.contains('selected')) {
@@ -126,6 +125,7 @@ const IntroModule = (() => {
 
   /** Open the selected envelope → transition directly to main page */
   async function openEnvelope(env) {
+    MusicModule.tryAutoplay();
     tapText.classList.add('hidden');
     env.classList.add('opened');
 
