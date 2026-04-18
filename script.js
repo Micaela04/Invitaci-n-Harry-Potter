@@ -1005,12 +1005,17 @@ const PhotosModule = (() => {
       submitBtn.textContent = 'Subir Fotos';
       
       if (successCount > 0 && errorCount === 0) {
-        setStatus(`¡Travesura Realizada! ${successCount} foto(s) subida(s) con éxito.`, 'success');
+        const msg = successCount === 1 
+          ? '¡Travesura Realizada! 1 foto subida con éxito.' 
+          : `¡Travesura Realizada! ${successCount} fotos subidas con éxito.`;
+        setStatus(msg, 'success');
         form.reset();
         selectedFiles = [];
         updatePreview();
       } else if (successCount > 0 && errorCount > 0) {
-        setStatus(`Subidas ${successCount} fotos. ${errorCount} foto(s) fallaron (tal vez eran muy pesadas).`, 'info');
+        const successMsg = successCount === 1 ? 'Subida 1 foto' : `Subidas ${successCount} fotos`;
+        const errorMsg = errorCount === 1 ? '1 foto falló (tal vez era muy pesada)' : `${errorCount} fotos fallaron (tal vez eran muy pesadas)`;
+        setStatus(`${successMsg}. ${errorMsg}.`, 'info');
         form.reset();
         selectedFiles = [];
         updatePreview();
@@ -1059,6 +1064,7 @@ const PhotosModule = (() => {
 const RSVPModule = (() => {
   const form = $('#rsvp-form');
   const successMsg = $('#rsvp-success');
+  const errorMsg = $('#rsvp-error');
   if (!form) return { init() {} };
 
   const peopleSelect = $('#rsvp-people');
@@ -1174,7 +1180,12 @@ const RSVPModule = (() => {
     form.addEventListener('submit', (e) => {
       e.preventDefault();
 
-      if (!validate()) return;
+      if (!validate()) {
+        if (errorMsg) errorMsg.classList.remove('hidden');
+        return;
+      }
+      
+      if (errorMsg) errorMsg.classList.add('hidden');
 
       // Collect form data (ready to send to a backend / Google Sheets)
       const rawPhone = form.phone ? form.phone.value : '';
@@ -1214,6 +1225,15 @@ const RSVPModule = (() => {
       }).then(() => {
         // Show success message
         form.style.display = 'none';
+        
+        if (data.attendance === 'Si') {
+          successMsg.textContent = '¡Tu buho ha sido enviado! ¡Nos vemos en la celebración!';
+          successMsg.style.color = '#27ae60'; // Verde
+        } else {
+          successMsg.textContent = '¡Tu buho ha sido enviado! En otra ocasión nos veremos...';
+          successMsg.style.color = 'var(--gryffindor-red, #ae0001)'; // Rojo mágico de la página
+        }
+        
         successMsg.classList.remove('hidden');
       });
     });
