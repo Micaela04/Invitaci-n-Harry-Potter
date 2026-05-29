@@ -1714,10 +1714,14 @@ const MapAnimationModule = (() => {
     const closedSet = new Set();
 
     const neighbors = [
-      { x: 1, y: 0 },
-      { x: -1, y: 0 },
-      { x: 0, y: 1 },
-      { x: 0, y: -1 },
+      { x: 1, y: 0, cost: 1 },
+      { x: -1, y: 0, cost: 1 },
+      { x: 0, y: 1, cost: 1 },
+      { x: 0, y: -1, cost: 1 },
+      { x: 1, y: 1, cost: Math.SQRT2 },
+      { x: 1, y: -1, cost: Math.SQRT2 },
+      { x: -1, y: 1, cost: Math.SQRT2 },
+      { x: -1, y: -1, cost: Math.SQRT2 },
     ];
 
     const lowestFScore = () => {
@@ -1769,12 +1773,24 @@ const MapAnimationModule = (() => {
           continue;
         }
 
+        if (neighborDelta.x !== 0 && neighborDelta.y !== 0) {
+          const horizontalNeighborPoint = cellToPoint({ x: current.x + neighborDelta.x, y: current.y });
+          const verticalNeighborPoint = cellToPoint({ x: current.x, y: current.y + neighborDelta.y });
+
+          if (
+            pointBlocked(horizontalNeighborPoint.x, horizontalNeighborPoint.y, obstacles) ||
+            pointBlocked(verticalNeighborPoint.x, verticalNeighborPoint.y, obstacles)
+          ) {
+            continue;
+          }
+        }
+
         const neighborKey = cellKey(neighbor);
         if (closedSet.has(neighborKey)) {
           continue;
         }
 
-        const tentativeG = (gScore.get(currentKey) ?? Infinity) + 1;
+        const tentativeG = (gScore.get(currentKey) ?? Infinity) + neighborDelta.cost;
 
         if (!openSet.some((cell) => cell.x === neighbor.x && cell.y === neighbor.y)) {
           openSet.push(neighbor);
