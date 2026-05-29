@@ -10,7 +10,7 @@
    ───────────────────────────────────────────── */
 const CONFIG = {
   /* Event date for the countdown (YYYY-MM-DDTHH:MM:SS) */
-  eventDate: '2026-06-03T21:30:00',
+  eventDate: '2026-05-29T21:30:00',
 
   /* Number of envelopes to spawn */
   envelopeCount: 10,
