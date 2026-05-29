@@ -1496,6 +1496,13 @@ const SecretAudioModule = (() => {
   function playAudio(name, numeroMesa) {
     const audioSrc = `audios/${name}.mp3`;
     const isImpacienciaAudio = name === 'Impaciencia';
+    const backgroundMusic = $('#bg-music');
+    const restoreBackgroundVolume = backgroundMusic && !backgroundMusic.muted ? backgroundMusic.volume : null;
+
+    if (backgroundMusic && restoreBackgroundVolume !== null) {
+      backgroundMusic.volume = restoreBackgroundVolume * 0.1;
+    }
+
     if (audioPlayer) audioPlayer.pause();
     
     audioPlayer = new Audio(audioSrc);
@@ -1511,6 +1518,10 @@ const SecretAudioModule = (() => {
     });
 
     audioPlayer.onended = () => {
+      if (backgroundMusic && restoreBackgroundVolume !== null) {
+        backgroundMusic.volume = restoreBackgroundVolume;
+      }
+
       if (hatGif) hatGif.classList.add('hidden');
       if (isImpacienciaAudio) {
         const mapContainer = $('#conoce-mesa-mapa');
