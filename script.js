@@ -1579,6 +1579,11 @@ const SecretAudioModule = (() => {
 const MapAnimationModule = (() => {
   const mapContainer = $('#conoce-mesa-mapa');
   const pathsContainer = $('#map-paths-container');
+  const SVG_WIDTH = 400;
+  const SVG_HEIGHT = 600;
+  const GRID_SIZE = 10;
+  const OBSTACLE_PADDING = 14;
+  const START_POINT = { x: SVG_WIDTH / 2, y: SVG_HEIGHT - 8 };
   
   function createFootprint(x, y, isRight, angle) {
     const use = document.createElementNS('http://www.w3.org/2000/svg', 'use');
@@ -1593,35 +1598,222 @@ const MapAnimationModule = (() => {
     return use;
   }
 
-  function getPathSegments(tableX, tableY) {
-    let pts = [];
-    let startX = 200;
-    let startY = 440;
-    
-    let isLeft = tableX < 200;
-    let turnRadius = 25;
-    let turnStartY = tableY + turnRadius;
-    if (turnStartY > startY) turnStartY = startY; 
-    
-    pts.push({x: startX, y: startY});
-    pts.push({x: startX, y: turnStartY});
-    
-    // Curva suave
-    let curveSteps = 5;
-    for(let i=1; i<=curveSteps; i++) {
-        let t = i / curveSteps; 
-        let a = t * (Math.PI / 2); 
-        // Si va a la izq, el centro del giro está en la izquierda. Si va a la der, en la derecha.
-        let curX = startX + (isLeft ? -turnRadius * (1 - Math.cos(a)) : turnRadius * (1 - Math.cos(a)));
-        let curY = turnStartY - turnRadius * Math.sin(a);
-        pts.push({x: curX, y: curY});
+  function getTableBounds(tableEl) {
+    const cxAttr = tableEl.getAttribute('cx');
+    const cyAttr = tableEl.getAttribute('cy');
+    const rAttr = tableEl.getAttribute('r');
+    const xAttr = tableEl.getAttribute('x');
+    const yAttr = tableEl.getAttribute('y');
+    const widthAttr = tableEl.getAttribute('width');
+    const heightAttr = tableEl.getAttribute('height');
+
+    if (cxAttr !== null && cyAttr !== null && rAttr !== null) {
+      const cx = parseFloat(cxAttr);
+      const cy = parseFloat(cyAttr);
+      const r = parseFloat(rAttr);
+
+      return {
+        left: cx - r - OBSTACLE_PADDING,
+        top: cy - r - OBSTACLE_PADDING,
+        right: cx + r + OBSTACLE_PADDING,
+        bottom: cy + r + OBSTACLE_PADDING,
+        centerX: cx,
+        centerY: cy,
+      };
     }
-    
-    // Segmento horizontal hasta la mesa
-    let endX = tableX + (isLeft ? 45 : -45); 
-    pts.push({x: endX, y: tableY});
-    
-    return pts;
+
+    const x = parseFloat(xAttr);
+    const y = parseFloat(yAttr);
+    const width = parseFloat(widthAttr);
+    const height = parseFloat(heightAttr);
+
+    return {
+      left: x - OBSTACLE_PADDING,
+      top: y - OBSTACLE_PADDING,
+      right: x + width + OBSTACLE_PADDING,
+      bottom: y + height + OBSTACLE_PADDING,
+      centerX: x + width / 2,
+      centerY: y + height / 2,
+    };
+  }
+
+  function getLandingPoint(bounds) {
+    return {
+      x: bounds.centerX,
+      y: Math.min(SVG_HEIGHT - 18, bounds.bottom + 18),
+    };
+  }
+
+  function pointBlocked(x, y, obstacles) {
+    return obstacles.some((obstacle) => (
+      x >= obstacle.left && x <= obstacle.right &&
+      y >= obstacle.top && y <= obstacle.bottom
+    ));
+  }
+
+  function pointToCell(point) {
+    return {
+      x: Math.max(0, Math.min(Math.floor(point.x / GRID_SIZE), Math.floor(SVG_WIDTH / GRID_SIZE) - 1)),
+      y: Math.max(0, Math.min(Math.floor(point.y / GRID_SIZE), Math.floor(SVG_HEIGHT / GRID_SIZE) - 1)),
+    };
+  }
+
+  function cellToPoint(cell) {
+    return {
+      x: (cell.x * GRID_SIZE) + (GRID_SIZE / 2),
+      y: (cell.y * GRID_SIZE) + (GRID_SIZE / 2),
+    };
+  }
+
+  function cellKey(cell) {
+    return `${cell.x},${cell.y}`;
+  }
+
+  function findNearestFreeCell(point, obstacles) {
+    const origin = pointToCell(point);
+    const maxRadius = 8;
+
+    for (let radius = 0; radius <= maxRadius; radius++) {
+      for (let dx = -radius; dx <= radius; dx++) {
+        for (let dy = -radius; dy <= radius; dy++) {
+          if (Math.abs(dx) !== radius && Math.abs(dy) !== radius) continue;
+
+          const candidate = {
+            x: origin.x + dx,
+            y: origin.y + dy,
+          };
+
+          if (
+            candidate.x < 0 || candidate.y < 0 ||
+            candidate.x >= Math.floor(SVG_WIDTH / GRID_SIZE) ||
+            candidate.y >= Math.floor(SVG_HEIGHT / GRID_SIZE)
+          ) {
+            continue;
+          }
+
+          const candidatePoint = cellToPoint(candidate);
+          if (!pointBlocked(candidatePoint.x, candidatePoint.y, obstacles)) {
+            return candidate;
+          }
+        }
+      }
+    }
+
+    return origin;
+  }
+
+  function findPath(startPoint, goalPoint, obstacles) {
+    const cols = Math.floor(SVG_WIDTH / GRID_SIZE);
+    const rows = Math.floor(SVG_HEIGHT / GRID_SIZE);
+    const startCell = findNearestFreeCell(startPoint, obstacles);
+    const goalCell = findNearestFreeCell(goalPoint, obstacles);
+    const openSet = [startCell];
+    const cameFrom = new Map();
+    const gScore = new Map([[cellKey(startCell), 0]]);
+    const fScore = new Map([[cellKey(startCell), Math.abs(startCell.x - goalCell.x) + Math.abs(startCell.y - goalCell.y)]]);
+    const closedSet = new Set();
+
+    const neighbors = [
+      { x: 1, y: 0 },
+      { x: -1, y: 0 },
+      { x: 0, y: 1 },
+      { x: 0, y: -1 },
+    ];
+
+    const lowestFScore = () => {
+      let bestIndex = 0;
+      let bestScore = fScore.get(cellKey(openSet[0])) ?? Infinity;
+
+      for (let i = 1; i < openSet.length; i++) {
+        const score = fScore.get(cellKey(openSet[i])) ?? Infinity;
+        if (score < bestScore) {
+          bestScore = score;
+          bestIndex = i;
+        }
+      }
+
+      return openSet.splice(bestIndex, 1)[0];
+    };
+
+    while (openSet.length > 0) {
+      const current = lowestFScore();
+      const currentKey = cellKey(current);
+
+      if (current.x === goalCell.x && current.y === goalCell.y) {
+        const path = [current];
+        let walkerKey = currentKey;
+
+        while (cameFrom.has(walkerKey)) {
+          const previous = cameFrom.get(walkerKey);
+          path.unshift(previous);
+          walkerKey = cellKey(previous);
+        }
+
+        return path.map(cellToPoint);
+      }
+
+      closedSet.add(currentKey);
+
+      for (const neighborDelta of neighbors) {
+        const neighbor = {
+          x: current.x + neighborDelta.x,
+          y: current.y + neighborDelta.y,
+        };
+
+        if (neighbor.x < 0 || neighbor.y < 0 || neighbor.x >= cols || neighbor.y >= rows) {
+          continue;
+        }
+
+        const neighborPoint = cellToPoint(neighbor);
+        if (pointBlocked(neighborPoint.x, neighborPoint.y, obstacles)) {
+          continue;
+        }
+
+        const neighborKey = cellKey(neighbor);
+        if (closedSet.has(neighborKey)) {
+          continue;
+        }
+
+        const tentativeG = (gScore.get(currentKey) ?? Infinity) + 1;
+
+        if (!openSet.some((cell) => cell.x === neighbor.x && cell.y === neighbor.y)) {
+          openSet.push(neighbor);
+        } else if (tentativeG >= (gScore.get(neighborKey) ?? Infinity)) {
+          continue;
+        }
+
+        cameFrom.set(neighborKey, current);
+        gScore.set(neighborKey, tentativeG);
+        fScore.set(neighborKey, tentativeG + Math.abs(neighbor.x - goalCell.x) + Math.abs(neighbor.y - goalCell.y));
+      }
+    }
+
+    return [startPoint, goalPoint];
+  }
+
+  function simplifyPath(points) {
+    if (points.length <= 2) return points;
+
+    const simplified = [points[0]];
+
+    for (let i = 1; i < points.length - 1; i++) {
+      const prev = simplified[simplified.length - 1];
+      const current = points[i];
+      const next = points[i + 1];
+
+      const dx1 = current.x - prev.x;
+      const dy1 = current.y - prev.y;
+      const dx2 = next.x - current.x;
+      const dy2 = next.y - current.y;
+
+      const sameDirection = dx1 * dy2 === dy1 * dx2;
+      if (!sameDirection) {
+        simplified.push(current);
+      }
+    }
+
+    simplified.push(points[points.length - 1]);
+    return simplified;
   }
   
   function generarHuellas(pts) {
@@ -1673,26 +1865,19 @@ const MapAnimationModule = (() => {
     pathsContainer.innerHTML = '';
     
     $$('.mesa-salon').forEach(m => m.classList.remove('mesa-asignada'));
-    const target = $(`#mesa-${numeroMesa}`);
+    const normalizedMesa = String(numeroMesa).trim().toLowerCase();
+    const target = $(`#mesa-${normalizedMesa}`) || $(`#mesa-${String(numeroMesa).trim()}`) || $(`#mesa-${numeroMesa}`);
     if (!target) return;
     
     target.classList.add('mesa-asignada');
-    
-    const cxAttr = target.getAttribute('cx');
-    const cyAttr = target.getAttribute('cy');
-    const xAttr = target.getAttribute('x');
-    const yAttr = target.getAttribute('y');
-    const widthAttr = target.getAttribute('width');
-    const heightAttr = target.getAttribute('height');
 
-    const cx = cxAttr !== null
-      ? parseFloat(cxAttr)
-      : parseFloat(xAttr) + (parseFloat(widthAttr) / 2);
-    const cy = cyAttr !== null
-      ? parseFloat(cyAttr)
-      : parseFloat(yAttr) + (parseFloat(heightAttr) / 2);
-    
-    const pts = getPathSegments(cx, cy);
+    const targetBounds = getTableBounds(target);
+    const targetLandingPoint = getLandingPoint(targetBounds);
+    const obstacles = $$('.mesa-salon')
+      .filter((element) => element !== target)
+      .map(getTableBounds);
+
+    const pts = simplifyPath(findPath(START_POINT, targetLandingPoint, obstacles));
     const footprints = generarHuellas(pts);
     
     footprints.forEach((fp, i) => {
