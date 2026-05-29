@@ -10,7 +10,7 @@
    ───────────────────────────────────────────── */
 const CONFIG = {
   /* Event date for the countdown (YYYY-MM-DDTHH:MM:SS) */
-  eventDate: '2026-06-06T21:30:00',
+  eventDate: '2026-06-03T21:30:00',
 
   /* Number of envelopes to spawn */
   envelopeCount: 10,
@@ -37,6 +37,38 @@ const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 /** Mark first user interaction (needed for audio autoplay) */
 let hasInteracted = false;
 const markInteraction = () => { hasInteracted = true; };
+
+function getBuenosAiresDateKey(date = new Date()) {
+  return new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'America/Argentina/Buenos_Aires',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).format(date);
+}
+
+function getSecretAudioMode() {
+  const eventDate = new Date(CONFIG.eventDate);
+  const eventDay = getBuenosAiresDateKey(eventDate);
+  const weekBeforeStart = new Date(eventDate);
+  weekBeforeStart.setDate(weekBeforeStart.getDate() - 7);
+  const weekBeforeEnd = new Date(eventDate);
+  weekBeforeEnd.setDate(weekBeforeEnd.getDate() - 1);
+
+  const today = getBuenosAiresDateKey();
+  const weekBeforeStartKey = getBuenosAiresDateKey(weekBeforeStart);
+  const weekBeforeEndKey = getBuenosAiresDateKey(weekBeforeEnd);
+
+  if (today >= weekBeforeStartKey && today <= weekBeforeEndKey) {
+    return 'impaciencia';
+  }
+
+  if (today === eventDay) {
+    return 'event-day';
+  }
+
+  return 'default';
+}
 
 /* ═══════════════════════════════════════════════════════════
    MODULE 1 — ENVELOPE INTRO ANIMATION
@@ -1427,24 +1459,35 @@ const SecretAudioModule = (() => {
 
     let audioName = params.get('inv') || 'defecto';
     let numeroMesa = null;
+    const secretAudioMode = getSecretAudioMode();
 
     try {
-      // Intentamos traer el audio y la mesa del id
-      const resp = await fetch(`${EXPECTED_URL}?action=getAudio&id=${id}`);
-      const data = await resp.json();
-      
-      if (data) {
-        if (data.audioName) audioName = data.audioName;
-        
-        // Extraemos el número de la mesa
-        if (data.mesa) {
-           const match = String(data.mesa).match(/\d+/);
-           if (match) numeroMesa = match[0];
-           else numeroMesa = data.mesa;
+      if (secretAudioMode === 'impaciencia') {
+        audioName = 'Impaciencia';
+      } else {
+        // Intentamos traer el audio y la mesa del id
+        const resp = await fetch(`${EXPECTED_URL}?action=getAudio&id=${id}`);
+        const data = await resp.json();
+
+        if (data) {
+          if (data.audioName) audioName = data.audioName;
+
+          // Extraemos el número de la mesa
+          if (data.mesa) {
+             const match = String(data.mesa).match(/\d+/);
+             if (match) numeroMesa = match[0];
+             else numeroMesa = data.mesa;
+          }
         }
       }
     } catch (e) {
-      // Fallback
+      if (secretAudioMode === 'impaciencia') {
+        audioName = 'Impaciencia';
+      }
+    }
+
+    if (secretAudioMode === 'impaciencia') {
+      audioName = 'Impaciencia';
     }
 
     playAudio(audioName, numeroMesa);

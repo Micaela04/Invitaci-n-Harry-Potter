@@ -1,3 +1,6 @@
-2026/03/15-23:11:13.736 3af0 Reusing MANIFEST C:\Users\MICAELA\Documents\Invitaci-n-Harry-Potter\automation\.wwebjs_auth\session\Default\Local Storage\leveldb/MANIFEST-000001
-2026/03/15-23:11:13.756 3af0 Recovering log #3
-2026/03/15-23:11:13.764 3af0 Reusing old log C:\Users\MICAELA\Documents\Invitaci-n-Harry-Potter\automation\.wwebjs_auth\session\Default\Local Storage\leveldb/000003.log 
+2026/05/29-00:45:32.221 3c6c Reusing MANIFEST D:\ProyectosAngular\Invitaci-n-Harry-Potter\automation\.wwebjs_auth\session\Default\Local Storage\leveldb/MANIFEST-000001
+2026/05/29-00:45:32.229 3c6c Recovering log #3
+2026/05/29-00:45:32.232 3c6c Reusing old log D:\ProyectosAngular\Invitaci-n-Harry-Potter\automation\.wwebjs_auth\session\Default\Local Storage\leveldb/000003.log 
+2026/05/29-00:46:32.250 6e0 Level-0 table #5: started
+2026/05/29-00:46:32.305 6e0 Level-0 table #5: 26982 bytes OK
+2026/05/29-00:46:32.365 6e0 Delete type=0 #3
