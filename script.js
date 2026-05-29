@@ -10,7 +10,7 @@
    ───────────────────────────────────────────── */
 const CONFIG = {
   /* Event date for the countdown (YYYY-MM-DDTHH:MM:SS) */
-  eventDate: '2026-05-29T21:30:00',
+  eventDate: '2026-06-06T21:30:00',
 
   /* Number of envelopes to spawn */
   envelopeCount: 10,
@@ -1549,11 +1549,15 @@ const SecretAudioModule = (() => {
         if (mapContainer) mapContainer.classList.add('hidden');
         if (pathsContainer) pathsContainer.innerHTML = '';
 
-        statusEl.textContent = 'Volve el dia de la fiesta';
+        statusEl.textContent = 'Volvé a ingresar el día de la fiesta para conocer tu mesa... ¡Tené paciencia!';
         return;
       }
 
-      statusEl.textContent = "Travesura realizada. ¡Mirá el mapa!";
+      statusEl.textContent = '';
+      statusEl.append('Tu mesa es: ');
+      const tableName = document.createElement('strong');
+      tableName.textContent = name;
+      statusEl.append(tableName, ' ¡Mirá el mapa!');
       
       // Llamar al mapa
       MapAnimationModule.revelarMesa(numeroMesa || 1); // default mesa 1
@@ -1671,71 +1675,71 @@ const MapAnimationModule = (() => {
 
   function normalizeVector(vector) {
     const length = Math.hypot(vector.x, vector.y) || 1;
-    return { x: vector.x / length, y: vector.y / length };
+    return {
+      x: vector.x / length,
+      y: vector.y / length,
+    };
   }
 
-  function roundPath(points, radius = 16, arcSteps = 7) {
+  function interpolateQuadratic(p1, control, p2, t) {
+    const oneMinusT = 1 - t;
+    return {
+      x: oneMinusT * oneMinusT * p1.x + 2 * oneMinusT * t * control.x + t * t * p2.x,
+      y: oneMinusT * oneMinusT * p1.y + 2 * oneMinusT * t * control.y + t * t * p2.y,
+    };
+  }
+
+  function normalizeAngle(angle) {
+    let normalized = angle;
+
+    while (normalized > Math.PI) normalized -= Math.PI * 2;
+    while (normalized < -Math.PI) normalized += Math.PI * 2;
+
+    return normalized;
+  }
+
+  function blendAngles(fromAngle, toAngle, t) {
+    const delta = normalizeAngle(toAngle - fromAngle);
+    return fromAngle + delta * t;
+  }
+
+  function smoothPath(points) {
     if (points.length <= 2) return points;
 
-    const rounded = [points[0]];
+    const smoothed = [points[0]];
 
-    for (let i = 1; i < points.length - 1; i++) {
-      const prev = points[i - 1];
-      const current = points[i];
-      const next = points[i + 1];
+    for (let i = 0; i < points.length - 1; i++) {
+      const p1 = points[i];
+      const p2 = points[i + 1];
+      const dx = p2.x - p1.x;
+      const dy = p2.y - p1.y;
 
-      const incoming = normalizeVector({ x: current.x - prev.x, y: current.y - prev.y });
-      const outgoing = normalizeVector({ x: next.x - current.x, y: next.y - current.y });
-      const turnDot = incoming.x * outgoing.x + incoming.y * outgoing.y;
-
-      if (turnDot > 0.98) {
-        rounded.push(current);
+      if (Math.abs(dx) < 0.001) {
+        smoothed.push(p2);
         continue;
       }
 
-      const maxRadius = Math.min(
-        Math.hypot(current.x - prev.x, current.y - prev.y) / 2 - 1,
-        Math.hypot(next.x - current.x, next.y - current.y) / 2 - 1,
-        radius,
-      );
-
-      if (maxRadius <= 2) {
-        rounded.push(current);
-        continue;
-      }
-
-      const entry = {
-        x: current.x - incoming.x * maxRadius,
-        y: current.y - incoming.y * maxRadius,
+      const distance = Math.hypot(dx, dy);
+      const bendAmount = Math.min(24, Math.max(10, distance * 0.22));
+      const midpoint = {
+        x: (p1.x + p2.x) / 2,
+        y: (p1.y + p2.y) / 2,
       };
-      const exit = {
-        x: current.x + outgoing.x * maxRadius,
-        y: current.y + outgoing.y * maxRadius,
+      const perpendicular = normalizeVector({ x: -dy, y: dx });
+      const bendDirection = dx >= 0 ? 1 : -1;
+      const control = {
+        x: midpoint.x + perpendicular.x * bendAmount * bendDirection,
+        y: midpoint.y + perpendicular.y * bendAmount * bendDirection,
       };
 
-      const startAngle = Math.atan2(entry.y - current.y, entry.x - current.x);
-      let endAngle = Math.atan2(exit.y - current.y, exit.x - current.x);
-      let delta = endAngle - startAngle;
-
-      if (delta > Math.PI) delta -= Math.PI * 2;
-      if (delta < -Math.PI) delta += Math.PI * 2;
-
-      rounded.push(entry);
-
-      for (let step = 1; step <= arcSteps; step++) {
-        const t = step / (arcSteps + 1);
-        const angle = startAngle + delta * t;
-        rounded.push({
-          x: current.x + Math.cos(angle) * maxRadius,
-          y: current.y + Math.sin(angle) * maxRadius,
-        });
+      const curveSteps = Math.max(4, Math.ceil(distance / 18));
+      for (let step = 1; step <= curveSteps; step++) {
+        const t = step / curveSteps;
+        smoothed.push(interpolateQuadratic(p1, control, p2, t));
       }
-
-      rounded.push(exit);
     }
 
-    rounded.push(points[points.length - 1]);
-    return rounded;
+    return smoothed;
   }
 
   function findNearestFreeCell(point, obstacles) {
@@ -1901,11 +1905,13 @@ const MapAnimationModule = (() => {
     return simplified;
   }
   
-  function generarHuellas(pts) {
+  function generarHuellas(pts, targetCenter) {
     let footprints = [];
     let stepLength = 17; // Distancia exacta misma de styles.css
     let leftOver = 0;
     let isRight = false; // Empezamos con un pie
+    const endPoint = pts[pts.length - 1];
+    const finalTurnRange = 90;
     
     for (let i = 0; i < pts.length - 1; i++) {
       let p1 = pts[i];
@@ -1917,12 +1923,25 @@ const MapAnimationModule = (() => {
       
       let dirX = dx / dist;
       let dirY = dy / dist;
-      let angle = Math.atan2(dy, dx) * 180 / Math.PI;
       
       let currentD = leftOver;
       while (currentD < dist) {
+        const lookAhead = Math.min(dist, currentD + 2);
         let cx = p1.x + dirX * currentD;
         let cy = p1.y + dirY * currentD;
+        const nx = p1.x + dirX * lookAhead;
+        const ny = p1.y + dirY * lookAhead;
+        const pathAngle = Math.atan2(ny - cy, nx - cx);
+
+        let angle = pathAngle;
+        if (targetCenter) {
+          const distanceToEnd = Math.hypot(endPoint.x - cx, endPoint.y - cy);
+          if (distanceToEnd <= finalTurnRange) {
+            const faceCenterAngle = Math.atan2(targetCenter.y - cy, targetCenter.x - cx);
+            const blend = 1 - (distanceToEnd / finalTurnRange);
+            angle = blendAngles(pathAngle, faceCenterAngle, blend);
+          }
+        }
         
         let perpX = -dirY;
         let perpY = dirX;
@@ -1933,7 +1952,7 @@ const MapAnimationModule = (() => {
           x: cx + perpX * sideOffset,
           y: cy + perpY * sideOffset,
           isRight: isRight,
-          angle: angle
+          angle: angle * 180 / Math.PI
         });
         
         isRight = !isRight;
@@ -1962,8 +1981,8 @@ const MapAnimationModule = (() => {
       .filter((element) => element !== target)
       .map(getTableBounds);
 
-    const pts = roundPath(simplifyPath(findPath(START_POINT, targetLandingPoint, obstacles)));
-    const footprints = generarHuellas(pts);
+    const pts = smoothPath(simplifyPath(findPath(START_POINT, targetLandingPoint, obstacles)));
+    const footprints = generarHuellas(pts, { x: targetBounds.centerX, y: targetBounds.centerY });
     
     footprints.forEach((fp, i) => {
       const el = createFootprint(fp.x, fp.y, fp.isRight, fp.angle);
