@@ -1495,6 +1495,7 @@ const SecretAudioModule = (() => {
 
   function playAudio(name, numeroMesa) {
     const audioSrc = `audios/${name}.mp3`;
+    const isImpacienciaAudio = name === 'Impaciencia';
     if (audioPlayer) audioPlayer.pause();
     
     audioPlayer = new Audio(audioSrc);
@@ -1511,6 +1512,17 @@ const SecretAudioModule = (() => {
 
     audioPlayer.onended = () => {
       if (hatGif) hatGif.classList.add('hidden');
+      if (isImpacienciaAudio) {
+        const mapContainer = $('#conoce-mesa-mapa');
+        const pathsContainer = $('#map-paths-container');
+
+        if (mapContainer) mapContainer.classList.add('hidden');
+        if (pathsContainer) pathsContainer.innerHTML = '';
+
+        statusEl.textContent = 'Volve el dia de la fiesta';
+        return;
+      }
+
       statusEl.textContent = "Travesura realizada. ¡Mirá el mapa!";
       
       // Llamar al mapa
