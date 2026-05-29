@@ -1669,6 +1669,75 @@ const MapAnimationModule = (() => {
     return `${cell.x},${cell.y}`;
   }
 
+  function normalizeVector(vector) {
+    const length = Math.hypot(vector.x, vector.y) || 1;
+    return { x: vector.x / length, y: vector.y / length };
+  }
+
+  function roundPath(points, radius = 16, arcSteps = 7) {
+    if (points.length <= 2) return points;
+
+    const rounded = [points[0]];
+
+    for (let i = 1; i < points.length - 1; i++) {
+      const prev = points[i - 1];
+      const current = points[i];
+      const next = points[i + 1];
+
+      const incoming = normalizeVector({ x: current.x - prev.x, y: current.y - prev.y });
+      const outgoing = normalizeVector({ x: next.x - current.x, y: next.y - current.y });
+      const turnDot = incoming.x * outgoing.x + incoming.y * outgoing.y;
+
+      if (turnDot > 0.98) {
+        rounded.push(current);
+        continue;
+      }
+
+      const maxRadius = Math.min(
+        Math.hypot(current.x - prev.x, current.y - prev.y) / 2 - 1,
+        Math.hypot(next.x - current.x, next.y - current.y) / 2 - 1,
+        radius,
+      );
+
+      if (maxRadius <= 2) {
+        rounded.push(current);
+        continue;
+      }
+
+      const entry = {
+        x: current.x - incoming.x * maxRadius,
+        y: current.y - incoming.y * maxRadius,
+      };
+      const exit = {
+        x: current.x + outgoing.x * maxRadius,
+        y: current.y + outgoing.y * maxRadius,
+      };
+
+      const startAngle = Math.atan2(entry.y - current.y, entry.x - current.x);
+      let endAngle = Math.atan2(exit.y - current.y, exit.x - current.x);
+      let delta = endAngle - startAngle;
+
+      if (delta > Math.PI) delta -= Math.PI * 2;
+      if (delta < -Math.PI) delta += Math.PI * 2;
+
+      rounded.push(entry);
+
+      for (let step = 1; step <= arcSteps; step++) {
+        const t = step / (arcSteps + 1);
+        const angle = startAngle + delta * t;
+        rounded.push({
+          x: current.x + Math.cos(angle) * maxRadius,
+          y: current.y + Math.sin(angle) * maxRadius,
+        });
+      }
+
+      rounded.push(exit);
+    }
+
+    rounded.push(points[points.length - 1]);
+    return rounded;
+  }
+
   function findNearestFreeCell(point, obstacles) {
     const origin = pointToCell(point);
     const maxRadius = 8;
@@ -1753,7 +1822,7 @@ const MapAnimationModule = (() => {
           walkerKey = cellKey(previous);
         }
 
-        return path.map(cellToPoint);
+        return roundPath(path.map(cellToPoint));
       }
 
       closedSet.add(currentKey);
@@ -1804,7 +1873,7 @@ const MapAnimationModule = (() => {
       }
     }
 
-    return [startPoint, goalPoint];
+    return roundPath([startPoint, goalPoint]);
   }
 
   function simplifyPath(points) {
