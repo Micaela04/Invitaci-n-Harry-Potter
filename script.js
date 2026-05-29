@@ -1659,8 +1659,19 @@ const MapAnimationModule = (() => {
     
     target.classList.add('mesa-asignada');
     
-    const cx = parseFloat(target.getAttribute('cx'));
-    const cy = parseFloat(target.getAttribute('cy'));
+    const cxAttr = target.getAttribute('cx');
+    const cyAttr = target.getAttribute('cy');
+    const xAttr = target.getAttribute('x');
+    const yAttr = target.getAttribute('y');
+    const widthAttr = target.getAttribute('width');
+    const heightAttr = target.getAttribute('height');
+
+    const cx = cxAttr !== null
+      ? parseFloat(cxAttr)
+      : parseFloat(xAttr) + (parseFloat(widthAttr) / 2);
+    const cy = cyAttr !== null
+      ? parseFloat(cyAttr)
+      : parseFloat(yAttr) + (parseFloat(heightAttr) / 2);
     
     const pts = getPathSegments(cx, cy);
     const footprints = generarHuellas(pts);
