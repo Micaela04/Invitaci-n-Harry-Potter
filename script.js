@@ -1822,7 +1822,7 @@ const MapAnimationModule = (() => {
           walkerKey = cellKey(previous);
         }
 
-        return roundPath(path.map(cellToPoint));
+        return path.map(cellToPoint);
       }
 
       closedSet.add(currentKey);
@@ -1873,7 +1873,7 @@ const MapAnimationModule = (() => {
       }
     }
 
-    return roundPath([startPoint, goalPoint]);
+    return [startPoint, goalPoint];
   }
 
   function simplifyPath(points) {
@@ -1962,7 +1962,7 @@ const MapAnimationModule = (() => {
       .filter((element) => element !== target)
       .map(getTableBounds);
 
-    const pts = simplifyPath(findPath(START_POINT, targetLandingPoint, obstacles));
+    const pts = roundPath(simplifyPath(findPath(START_POINT, targetLandingPoint, obstacles)));
     const footprints = generarHuellas(pts);
     
     footprints.forEach((fp, i) => {
