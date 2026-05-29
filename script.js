@@ -1456,18 +1456,37 @@ const SecretAudioModule = (() => {
 
     const params = new URLSearchParams(window.location.search);
     const id = params.get('id');
+    const parsedId = Number.parseInt(id, 10);
 
     let audioName = params.get('inv') || 'defecto';
     let numeroMesa = null;
     const secretAudioMode = getSecretAudioMode();
+
+    const fetchAudioData = async (candidateId) => {
+      const response = await fetch(`${EXPECTED_URL}?action=getAudio&id=${candidateId}`);
+      const data = await response.json();
+
+      console.log('Audio lookup response:', { candidateId, data });
+      return data;
+    };
 
     try {
       if (secretAudioMode === 'impaciencia') {
         audioName = 'Impaciencia';
       } else {
         // Intentamos traer el audio y la mesa del id
-        const resp = await fetch(`${EXPECTED_URL}?action=getAudio&id=${id}`);
-        const data = await resp.json();
+        let data = await fetchAudioData(id);
+
+        const looksLikeHeaderRow = data && (
+          data.audioName === 'Audio' ||
+          data.mesa === 'Mesa' ||
+          data.audioName === 'audioName' ||
+          data.mesa === 'mesa'
+        );
+
+        if (looksLikeHeaderRow && Number.isInteger(parsedId)) {
+          data = await fetchAudioData(parsedId + 1);
+        }
 
         if (data) {
           if (data.audioName) audioName = data.audioName;
